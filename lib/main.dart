@@ -5,9 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:parking_spot_app/pages/signup_page.dart';
 //import 'package:login_signup_page/start_page.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
