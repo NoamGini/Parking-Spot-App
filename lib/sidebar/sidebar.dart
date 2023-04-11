@@ -1,192 +1,111 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc.navigation_bloc/navigation_bloc.dart';
-import '../sidebar/menu_item.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:parking_spot_app/pages/homepage.dart';
+import 'package:parking_spot_app/pages/searchparkintlotspage.dart';
 
-class SideBar extends StatefulWidget {
-  const SideBar({super.key});
+import 'menu_item.dart';
 
-  @override
-  State<SideBar> createState() => _SideBarState();
-}
-
-class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<SideBar>{
-  late AnimationController _animationController;
-  late StreamController<bool> isSideBarOpenedStreamController;
-  late Stream<bool> isSidebarOpenedStream;
-  late StreamSink<bool> isSidebarOpenedSink;
-  final _animationDuration = const Duration(milliseconds: 500);
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(vsync: this, duration: _animationDuration);
-    isSideBarOpenedStreamController = PublishSubject<bool>();
-    isSidebarOpenedStream = isSideBarOpenedStreamController.stream;
-    isSidebarOpenedSink = isSideBarOpenedStreamController.sink;
-
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    isSideBarOpenedStreamController.close();
-    isSidebarOpenedSink.close();
-    super.dispose();
-  }
-
-  void onIconPressed(){
-    final animationStatus = _animationController.status;
-    final isAnimationCompleted = animationStatus == AnimationStatus.completed;
-
-    if (isAnimationCompleted) {
-      isSidebarOpenedSink.add(false);
-      _animationController.reverse();
-    } else {
-      isSidebarOpenedSink.add(true);
-      _animationController.forward();
-    }
-  }
+class SideBar extends StatelessWidget {
+  const SideBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return StreamBuilder<bool>(
-      initialData: false,
-      stream: isSidebarOpenedStream,
-      builder: (context, isSidebarOpenedAsync) {
-        return AnimatedPositioned(
-          duration: _animationDuration,
-          top: 0,
-          bottom: 0,
-          right: isSidebarOpenedAsync.data ?? false ? 0 : -screenWidth,
-          left: isSidebarOpenedAsync.data ?? false ? 0 : screenWidth - 45,
-          child: Row(
-            children: <Widget>[
-              Align(
-                  alignment: const Alignment(0, -0.9),
-                  child: GestureDetector(
-                    onTap: (){
-                      onIconPressed();
-                    },
-                    child: ClipPath(
-                      clipper: CustomMenuClipper(),
-                      child: Container(
-                        width: 35,
-                        height: 110,
-                        color: const Color(0xFF262AAA),
-                        alignment: Alignment.centerRight,
-                        child: AnimatedIcon(
-                          progress: _animationController.view,
-                          icon: AnimatedIcons.menu_close,
-                          color: Colors.lightBlueAccent,
-                          size: 25,
-                        ),
-                      ),
-                    ),
-                  )
+    return Drawer(
+      child: Material(
+        color: const Color(0xFF262AAA),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24.0, 80, 24, 0),
+          child: Column(
+            children: [
+              headerWidget(),
+              const SizedBox(height: 40,),
+              const Divider(thickness: 1, height: 10, color: Colors.white,),
+              const SizedBox(height: 40,),
+              MenuItem(
+                title: 'עמוד הבית',
+                icon: Icons.home,
+                onTap: ()=> onItemPressed(context, index: 0),
               ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  color: const Color(0xFF262AAA),
-                  child: Column(
-                    children: const <Widget>[
-                      SizedBox(height: 100,),
-                      ListTile(
-                        title: Text("שלום, משתמש",
-                          style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.w800
-                          ),
-                          textDirection: TextDirection.rtl,
-                        ),
-                        subtitle: Text("user123@gmail.com",
-                        style: TextStyle(color: Colors.white,
-                            fontSize: 20,),
-                          textDirection: TextDirection.rtl,
-                        ),
-
-                        trailing: CircleAvatar(
-                          radius: 40,
-                          child: Icon(
-                            Icons.perm_identity,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      Divider(
-                        height: 64,
-                        thickness: 0.5,
-                        color: Color(0xA1FFFFFF),
-                        indent: 32,
-                        endIndent: 32,
-                      ),
-                      MenuItem(
-                        title: 'עמוד הבית',
-                        icon: Icons.home,
-
-                      ),
-                      MenuItem(
-                        title:'חיפוש',
-                        icon: Icons.search,
-                      ),
-                      Divider(
-                        height: 64,
-                        thickness: 0.5,
-                        color: Color(0xA1FFFFFF),
-                        indent: 32,
-                        endIndent: 32,
-                      ),
-                      MenuItem(
-                        title:'הגדרות',
-                        icon: Icons.settings,
-                      ),
-                      MenuItem(
-                        title:'התנתקות',
-                        icon: Icons.logout,
-                      ),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: 30,),
+              MenuItem(
+                  title: 'חיפוש חניון',
+                  icon: Icons.local_parking_rounded,
+                  onTap: ()=> onItemPressed(context, index: 1)
               ),
+              const SizedBox(height: 40,),
+              // MenuItem(
+              //     title: 'Chats',
+              //     icon: Icons.message_outlined,
+              //     onTap: ()=> onItemPressed(context, index: 2)
+              // ),
+              const SizedBox(height: 40,),
+              // MenuItem(
+              //     title: 'Favourites',
+              //     icon: Icons.favorite_outline,
+              //     onTap: ()=> onItemPressed(context, index: 3)
+              // ),
+              const SizedBox(height: 30,),
+              const Divider(thickness: 1, height: 10, color: Colors.white,),
+              const SizedBox(height: 30,),
+              MenuItem(
+                  title: 'הגדרות',
+                  icon: Icons.settings,
+                  onTap: ()=> onItemPressed(context, index: 4)
+              ),
+              const SizedBox(height: 30,),
+              MenuItem(
+                  title: 'התנתקות',
+                  icon: Icons.logout,
+                  onTap: ()=> onItemPressed(context, index: 5)
+              ),
+
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
-}
 
-class CustomMenuClipper extends CustomClipper<Path>{
-  @override
-  Path getClip(Size size) {
-    Paint paint = Paint();
-    paint.color = Colors.white;
+  void onItemPressed(BuildContext context, {required int index}){
+    Navigator.pop(context);
 
-    final width = size.width;
-    final height = size.height;
-
-    Path path = Path();
-    path.moveTo(width, 0);
-    path.quadraticBezierTo(width, 8, width-10, 16);
-    path.quadraticBezierTo(1, height/2 - 20, 0, height/2);
-    path.quadraticBezierTo(-1, height/2 + 20, width-10, height-16);
-    path.quadraticBezierTo(width, height-8, width, height);
-
-    path.close();
-
-    return path;
+    switch(index){
+      case 0:
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+        break;
+      case 1:
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+        break;
+    }
   }
 
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return true;
+  Widget headerWidget() {
+    // we can add to the database also a profile image if we want
+    //const url = 'https://media.istockphoto.com/photos/learn-to-love-yourself-first-picture-id1291208214?b=1&k=20&m=1291208214&s=170667a&w=0&h=sAq9SonSuefj3d4WKy4KzJvUiLERXge9VgZO-oqKUOo=';
+    return Row(
+      children: [
+        const SizedBox(width: 20,),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: const [
+            Text('שלום, שם המשתמש', style: TextStyle(fontSize: 15, color: Colors.white), textDirection: TextDirection.rtl),
+            SizedBox(height: 10,),
+            Text('person@email.com', style: TextStyle(fontSize: 15, color: Colors.white), textDirection: TextDirection.rtl)
+          ],
+        ),
+        const SizedBox(width: 20,),
+        const SizedBox(
+          width: 70,  // specify the width between the text and the icon
+          child: CircleAvatar(
+            radius: 35,
+            child: Icon(
+              Icons.perm_identity,
+              color: Colors.white,
+              size: 40,
+            ),
+            //child: backgroundImage: NetworkImage(url),
+          ),
+        ),
+      ],
+    );
   }
-  
 }
