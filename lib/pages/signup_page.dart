@@ -118,9 +118,11 @@ showAlertDialogExistUser(BuildContext context) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
-        body:Form( key: formKey,
-        child: Container(
+        body: SingleChildScrollView(
+        child: Form( key: formKey,
+         child: Padding(
+          padding: const EdgeInsets.only(top: 50.0), // Add top padding
+          child: Container(
           padding: const EdgeInsets.all(30),
           width: double.infinity,
           child: Column(
@@ -135,7 +137,6 @@ showAlertDialogExistUser(BuildContext context) {
               const SizedBox(height: 45),
               TextFormField(
                   controller: nameController,
-                  textAlign: TextAlign.end,
                   decoration: InputDecoration(
                     labelText: "שם מלא",
                     hintText: "הכנס שם מלא",
@@ -143,8 +144,7 @@ showAlertDialogExistUser(BuildContext context) {
                       Icons.people,
                       color: Colors.black,
                     ),
-                    hintStyle:
-                    TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    hintStyle:TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     labelStyle: TextStyle(fontSize: 15, color: Colors.black),
                   ),
                    validator: (value){
@@ -160,7 +160,6 @@ showAlertDialogExistUser(BuildContext context) {
               const SizedBox(height: 20),
               TextFormField(
                     controller: emailController,
-                    textAlign: TextAlign.end,
                     decoration: InputDecoration(
                       labelText: "מייל",
                       hintText: "הכנס מייל",
@@ -186,7 +185,6 @@ showAlertDialogExistUser(BuildContext context) {
               const SizedBox(height: 20),
               TextFormField(
                     controller: passwordController,
-                    textAlign: TextAlign.end,
                     obscureText: true, //hide text
                     obscuringCharacter: "*",
                     decoration: InputDecoration(
@@ -214,7 +212,6 @@ showAlertDialogExistUser(BuildContext context) {
               const SizedBox(height: 20),
               TextFormField(
                     controller: validatePasswordController,
-                    textAlign: TextAlign.end,
                     obscureText: true, //hide text
                     obscuringCharacter: "*",
                     decoration: InputDecoration(
@@ -269,7 +266,7 @@ showAlertDialogExistUser(BuildContext context) {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 150, vertical: 15),
+                        horizontal: 50, vertical: 15),
                   )
               ),
               const SizedBox(height: 35),
@@ -282,14 +279,17 @@ showAlertDialogExistUser(BuildContext context) {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("כניסה",
+                      child: const Text("עבור להתחברות",
                           style: TextStyle(
-                              fontSize: 18, color: Colors.black))),
+                              fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold,))),
                 ],
               ),
             ],
           ),
-        )));
+        ))
+      )
+    )
+  );
   }
 }
 
