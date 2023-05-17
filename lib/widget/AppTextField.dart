@@ -17,13 +17,13 @@ class AppTextField extends StatelessWidget {
         controller: textController,
         obscureText: isPassword, //hide text
         obscuringCharacter: "*",
-        textAlign: TextAlign.end,
         decoration: InputDecoration(
           labelText: labelText,
           hintText: hintText,
           prefixIcon: Icon(icon, color: Colors.black,),
           hintStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           labelStyle: TextStyle(fontSize: 15, color: Colors.black),
+
         )
     );
   }

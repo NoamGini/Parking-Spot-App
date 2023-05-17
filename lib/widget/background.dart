@@ -15,10 +15,10 @@ class Background extends StatelessWidget {
           alignment: Alignment.center,
           height: double.infinity,
           decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/img.png"),
-              fit: BoxFit.cover,
-            ),
+            // image: DecorationImage(
+            //   image: AssetImage("assets/images/img.png"),
+            //   fit: BoxFit.cover,
+            //),
           ),
         ),
         SizedBox(

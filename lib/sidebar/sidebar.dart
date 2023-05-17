@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:parking_spot_app/pages/homepage.dart';
-import 'package:parking_spot_app/pages/searchparkintlotspage.dart';
-
+import 'package:parking_spot_app/pages/search_page.dart';
 import 'menu_item.dart';
+import 'package:parking_spot_app/models/user.dart';
 
 class SideBar extends StatelessWidget {
-  const SideBar({Key? key}) : super(key: key);
+  User user;
+  SideBar({super.key,
+    required this.user,});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,7 @@ class SideBar extends StatelessWidget {
 
     switch(index){
       case 0:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>  HomePage(user: user)));
         break;
       case 1:
         Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
@@ -86,10 +88,10 @@ class SideBar extends StatelessWidget {
         const SizedBox(width: 20,),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
-          children: const [
-            Text('שלום, שם המשתמש', style: TextStyle(fontSize: 15, color: Colors.white), textDirection: TextDirection.rtl),
+          children: [
+            Text('שלום, ${user.getName}', style: TextStyle(fontSize: 15, color: Colors.white), textDirection: TextDirection.rtl),
             SizedBox(height: 10,),
-            Text('person@email.com', style: TextStyle(fontSize: 15, color: Colors.white), textDirection: TextDirection.rtl)
+            Text(user.getEmailAddress, style: TextStyle(fontSize: 15, color: Colors.white), textDirection: TextDirection.rtl)
           ],
         ),
         const SizedBox(width: 20,),
