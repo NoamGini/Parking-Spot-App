@@ -1,0 +1,834 @@
+// // 
+// import 'dart:async';
+
+// import 'package:flutter/foundation.dart';
+// import 'package:flutter/gestures.dart';
+// import 'package:flutter/material.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:parking_spot_app/direction.dart';
+// import 'package:parking_spot_app/marker_icon_info.dart';
+// import 'package:parking_spot_app/constants.dart';
+
+// /// A [GoogleMapsWidget] which can be used to make polylines(route)
+// /// from a source to a destination,
+// /// and also handle a driver's realtime location (if any) on the map.
+// class GoogleMapsWidget extends StatefulWidget {
+ 
+//   const GoogleMapsWidget({
+//     Key? key,
+//     required this.sourceLatLng,
+//     required this.destinationLatLng,
+//     this.apiKey="AIzaSyDKupYcq3t0hyHTn-YQRriH57ch-Ekw0cs",
+//     this.totalDistanceCallback,
+//     this.totalTimeCallback,
+//     this.onMapCreated,
+//     this.sourceMarkerIconInfo = const MarkerIconInfo(),
+//     this.destinationMarkerIconInfo = const MarkerIconInfo(),
+//     this.driverMarkerIconInfo = const MarkerIconInfo(),
+//     this.driverCoordinatesStream,
+//     this.defaultCameraLocation,
+//     this.onPolylineUpdate,
+//     this.markers = const <Marker>{},
+//     this.polylines = const <Polyline>{},
+//     this.showPolyline = true,
+//     this.defaultCameraZoom = Constants.kDefaultCameraZoom,
+//     this.routeColor = Constants.kRouteColor,
+//     this.routeWidth = Constants.kRouteWidth,
+//     this.updatePolylinesOnDriverLocUpdate = true,
+
+//     // other google maps params
+//     this.gestureRecognizers = const <Factory<OneSequenceGestureRecognizer>>{},
+//     this.layoutDirection,
+//     this.compassEnabled = true,
+//     this.mapToolbarEnabled = true,
+//     this.cameraTargetBounds = CameraTargetBounds.unbounded,
+//     this.mapType = MapType.normal,
+//     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
+//     this.rotateGesturesEnabled = true,
+//     this.scrollGesturesEnabled = true,
+//     this.zoomControlsEnabled = true,
+//     this.zoomGesturesEnabled = true,
+//     this.liteModeEnabled = false,
+//     this.tiltGesturesEnabled = true,
+//     this.myLocationEnabled = false,
+//     this.myLocationButtonEnabled = true,
+//     this.padding = const EdgeInsets.all(0),
+//     this.indoorViewEnabled = false,
+//     this.trafficEnabled = false,
+//     this.buildingsEnabled = true,
+//     this.polygons = const <Polygon>{},
+//     this.circles = const <Circle>{},
+//     this.onCameraMoveStarted,
+//     this.tileOverlays = const <TileOverlay>{},
+//     this.onCameraMove,
+//     this.onCameraIdle,
+//     this.onTap,
+//     this.onLongPress,
+//   }) : super(key: key);
+
+//   /// Google Maps API Key.
+//   final String apiKey;
+
+//   /// The source [LatLng].
+//   final LatLng sourceLatLng;
+
+//   /// The destination [LatLng].
+//   final LatLng destinationLatLng;
+
+//   /// If true, Updates the polylines everytime a new event is pushed to
+//   /// the driver stream, i.e. the driver location changes..
+//   ///
+//   /// Valid only if [GoogleMapsWidget.driverCoordinatesStream] is not null.
+//   final bool updatePolylinesOnDriverLocUpdate;
+
+//   /// Called after polylines are created for the given
+//   /// [sourceLatLng] and [destinationLatLng] and
+//   /// totalTime is initialized.
+//   final void Function(String?)? totalTimeCallback;
+
+//   /// Called after polylines are created for the given
+//   /// [sourceLatLng] and [destinationLatLng] and
+//   /// totalDistance is initialized.
+//   final void Function(String?)? totalDistanceCallback;
+
+//   /// A [Stream] of [LatLng] objects for the driver
+//   /// used to render [driverMarkerIconInfo] on the map
+//   /// with the provided [LatLng] objects.
+//   ///
+//   /// See also:
+//   ///   * [onTapDriverInfoWindow] parameter.
+//   ///   * [onTapDriverMarker] parameter.
+//   ///   * [driverName] parameter.
+//   ///
+//   /// If null, the [driverMarkerIconInfo] is not rendered.
+//   final Stream<LatLng>? driverCoordinatesStream;
+
+//   /// The initial location of the map's camera.
+//   /// If null, initial location is [sourceLatLng].
+//   final LatLng? defaultCameraLocation;
+
+//   /// The initial zoom of the map's camera.
+//   /// Defaults to [Constants.kDefaultCameraZoom].
+//   final double defaultCameraZoom;
+
+//   /// Color of the route made between [sourceLatLng] and [destinationLatLng].
+//   /// Defaults to [Constants.kRouteColor].
+//   final Color routeColor;
+
+//   /// Width of the route made between [sourceLatLng] and [destinationLatLng].
+//   /// Defaults to [Constants.kRouteWidth].
+//   final int routeWidth;
+
+//   /// Called when the polyline is updated i.e. route is updated.
+//   final void Function(Polyline)? onPolylineUpdate;
+
+//   /// The marker which is rendered on the location [sourceLatLng].
+//   final MarkerIconInfo sourceMarkerIconInfo;
+
+//   /// The marker which is rendered on the location [destinationLatLng].
+//   final MarkerIconInfo destinationMarkerIconInfo;
+
+//   /// The marker which is rendered on the driver's current location
+//   /// provided by [driverCoordinatesStream].
+//   ///
+//   /// See also:
+//   ///   * [driverCoordinatesStream] parameter.
+//   final MarkerIconInfo driverMarkerIconInfo;
+
+//   /// Whether to show the generated polyline from [sourceLatLng]
+//   /// to [destinationLatLng].
+//   ///
+//   /// Defaults to true.
+//   final bool showPolyline;
+
+//   /// Callback method for when the map is ready to be used.
+//   ///
+//   /// Used to receive a [GoogleMapController] for this [GoogleMap].
+//   final void Function(GoogleMapController)? onMapCreated;
+
+//   /////////////////////////////////////////////////
+//   // OTHER GOOGLE MAPS PARAMS
+//   /////////////////////////////////////////////////
+
+//   /// True if the map view should respond to rotate gestures.
+//   final bool rotateGesturesEnabled;
+
+//   /// True if the map view should respond to scroll gestures.
+//   final bool scrollGesturesEnabled;
+
+//   /// True if the map view should show zoom controls. This includes two buttons
+//   /// to zoom in and zoom out. The default value is to show zoom controls.
+//   ///
+//   /// This is only supported on Android. And this field is silently ignored on iOS.
+//   final bool zoomControlsEnabled;
+
+//   /// True if the map view should respond to zoom gestures.
+//   final bool zoomGesturesEnabled;
+
+//   /// True if the map view should be in lite mode. Android only.
+//   ///
+//   /// See https://developers.google.com/maps/documentation/android-sdk/lite#overview_of_lite_mode for more details.
+//   final bool liteModeEnabled;
+
+//   /// True if the map view should respond to tilt gestures.
+//   final bool tiltGesturesEnabled;
+
+//   /// True if a "My Location" layer should be shown on the map.
+//   ///
+//   /// This layer includes a location indicator at the current device location,
+//   /// as well as a My Location button.
+//   /// * The indicator is a small blue dot if the device is stationary, or a
+//   /// chevron if the device is moving.
+//   /// * The My Location button animates to focus on the user's current location
+//   /// if the user's location is currently known.
+//   ///
+//   /// Enabling this feature requires adding location permissions to both native
+//   /// platforms of your app.
+//   /// * On Android add either
+//   /// `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />`
+//   /// or `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
+//   /// to your `AndroidManifest.xml` file. `ACCESS_COARSE_LOCATION` returns a
+//   /// location with an accuracy approximately equivalent to a city block, while
+//   /// `ACCESS_FINE_LOCATION` returns as precise a location as possible, although
+//   /// it consumes more battery power. You will also need to request these
+//   /// permissions during run-time. If they are not granted, the My Location
+//   /// feature will fail silently.
+//   /// * On iOS add a `NSLocationWhenInUseUsageDescription` key to your
+//   /// `Info.plist` file. This will automatically prompt the user for permissions
+//   /// when the map tries to turn on the My Location layer.
+//   final bool myLocationEnabled;
+
+//   /// Enables or disables the my-location button.
+//   ///
+//   /// The my-location button causes the camera to move such that the user's
+//   /// location is in the center of the map. If the button is enabled, it is
+//   /// only shown when the my-location layer is enabled.
+//   ///
+//   /// By default, the my-location button is enabled (and hence shown when the
+//   /// my-location layer is enabled).
+//   ///
+//   /// See also:
+//   ///   * [myLocationEnabled] parameter.
+//   final bool myLocationButtonEnabled;
+
+//   /// Enables or disables the indoor view from the map
+//   final bool indoorViewEnabled;
+
+//   /// Enables or disables the traffic layer of the map
+//   final bool trafficEnabled;
+
+//   /// Enables or disables showing 3D buildings where available
+//   final bool buildingsEnabled;
+
+//   /// The layout direction to use for the embedded view.
+//   ///
+//   /// If this is null, the ambient [Directionality] is used instead. If there is
+//   /// no ambient [Directionality], [TextDirection.ltr] is used.
+//   final TextDirection? layoutDirection;
+
+//   /// True if the map should show a compass when rotated.
+//   final bool compassEnabled;
+
+//   /// True if the map should show a toolbar when you interact with the map. Android only.
+//   final bool mapToolbarEnabled;
+
+//   /// Called every time a [GoogleMap] is tapped.
+//   final ArgumentCallback<LatLng>? onTap;
+
+//   /// Called when camera movement has ended, there are no pending
+//   /// animations and the user has stopped interacting with the map.
+//   final VoidCallback? onCameraIdle;
+
+//   /// Called repeatedly as the camera continues to move after an
+//   /// onCameraMoveStarted call.
+//   ///
+//   /// This may be called as often as once every frame and should
+//   /// not perform expensive operations.
+//   final CameraPositionCallback? onCameraMove;
+
+//   /// Called when the camera starts moving.
+//   ///
+//   /// This can be initiated by the following:
+//   /// 1. Non-gesture animation initiated in response to user actions.
+//   ///    For example: zoom buttons, my location button, or marker clicks.
+//   /// 2. Programmatically initiated animation.
+//   /// 3. Camera motion initiated in response to user gestures on the map.
+//   ///    For example: pan, tilt, pinch to zoom, or rotate.
+//   final VoidCallback? onCameraMoveStarted;
+
+//   /// Called every time a [GoogleMap] is long pressed.
+//   final ArgumentCallback<LatLng>? onLongPress;
+
+//   /// Which gestures should be consumed by the map.
+//   ///
+//   /// It is possible for other gesture recognizers to be competing with the map on pointer
+//   /// events, e.g if the map is inside a [ListView] the [ListView] will want to handle
+//   /// vertical drags. The map will claim gestures that are recognized by any of the
+//   /// recognizers on this list.
+//   ///
+//   /// When this set is empty, the map will only handle pointer events for gestures that
+//   /// were not claimed by any other gesture recognizer.
+//   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
+
+//   /// Polygons to be placed on the map.
+//   final Set<Polygon> polygons;
+
+//   /// Circles to be placed on the map.
+//   final Set<Circle> circles;
+
+//   /// Markers to be placed on the map. (apart from the source and destination markers).
+//   final Set<Marker> markers;
+
+//   /// Polylines to be placed on the map. (apart from the one generated
+//   /// between the [sourceLatLng] and the [destinationLatLng].
+//   ///
+//   /// You can disable the generated polyline by setting the [showPolyline] to false.
+//   final Set<Polyline> polylines;
+
+//   /// Tile overlays to be placed on the map.
+//   final Set<TileOverlay> tileOverlays;
+
+//   /// Type of map tiles to be rendered.
+//   final MapType mapType;
+
+//   /// Padding to be set on map. See https://developers.google.com/maps/documentation/android-sdk/map#map_padding for more details.
+//   final EdgeInsets padding;
+
+//   /// Preferred bounds for the camera zoom level.
+//   ///
+//   /// Actual bounds depend on map data and device.
+//   final MinMaxZoomPreference minMaxZoomPreference;
+
+//   /// Geographical bounding box for the camera target.
+//   final CameraTargetBounds cameraTargetBounds;
+
+//   @override
+//   GoogleMapsWidgetState createState() => GoogleMapsWidgetState();
+// }
+
+// class GoogleMapsWidgetState extends State<GoogleMapsWidget> {
+//   /// Markers to be placed on the map.
+//   final _markersMap = <MarkerId, Marker>{};
+
+//   /// Polylines to be placed on the map.
+//   final _polylines = <Polyline>{};
+
+//   final _mapsControllerCompleter = Completer<GoogleMapController>();
+
+//   Future<GoogleMapController> getGoogleMapsController() =>
+//       _mapsControllerCompleter.future;
+
+//   Future<void> setSourceLatLng(LatLng sourceLatLng) async {
+//     if (_sourceLatLng == sourceLatLng) return;
+
+//     _sourceLatLng = sourceLatLng;
+//     await _buildPolyLines();
+//     _setSourceDestinationMarkers();
+//     setState(() {});
+//   }
+
+//   Future<void> setDestinationLatLng(LatLng destinationLatLng) async {
+//     if (_destinationLatLng == destinationLatLng) return;
+
+//     _destinationLatLng = destinationLatLng;
+//     await _buildPolyLines();
+//     _setSourceDestinationMarkers();
+//     setState(() {});
+//   }
+
+//   StreamSubscription<LatLng>? _driverCoordinatesStreamSubscription;
+
+//   late LatLng _sourceLatLng;
+//   late LatLng _destinationLatLng;
+
+//   /// setting source and destination markers
+//   void _setSourceDestinationMarkers() async {
+//     _markersMap.remove(MarkerIconInfo.sourceMarkerId);
+
+//     final sourceMarker = widget.sourceMarkerIconInfo;
+//     if (sourceMarker.isVisible) {
+//       _markersMap[MarkerIconInfo.sourceMarkerId] = Marker(
+//         markerId: MarkerIconInfo.sourceMarkerId,
+//         position: _sourceLatLng,
+//         anchor: sourceMarker.anchor,
+//         rotation: sourceMarker.rotation,
+//         icon: await sourceMarker.bitmapDescriptor,
+//         onTap: sourceMarker.onTapMarker == null
+//             ? null
+//             : () => sourceMarker.onTapMarker!(_sourceLatLng),
+//         infoWindow: InfoWindow(
+//           onTap: sourceMarker.onTapInfoWindow == null
+//               ? null
+//               : () => sourceMarker.onTapInfoWindow!(_sourceLatLng),
+//           title: sourceMarker.infoWindowTitle,
+//         ),
+//       );
+//     }
+
+//     _markersMap.remove(MarkerIconInfo.destinationMarkerId);
+
+//     final destinationMarker = widget.destinationMarkerIconInfo;
+//     if (destinationMarker.isVisible) {
+//       _markersMap[MarkerIconInfo.destinationMarkerId] = Marker(
+//         markerId: MarkerIconInfo.destinationMarkerId,
+//         position: _destinationLatLng,
+//         anchor: destinationMarker.anchor,
+//         rotation: destinationMarker.rotation,
+//         icon: await destinationMarker.bitmapDescriptor,
+//         onTap: destinationMarker.onTapMarker == null
+//             ? null
+//             : () => destinationMarker.onTapMarker!(_destinationLatLng),
+//         infoWindow: InfoWindow(
+//           onTap: destinationMarker.onTapInfoWindow == null
+//               ? null
+//               : () => destinationMarker.onTapInfoWindow!(_destinationLatLng),
+//           title: destinationMarker.infoWindowTitle,
+//         ),
+//       );
+//     }
+
+//     setState(() {});
+//   }
+
+//   /// Build polylines from [_sourceLatLng] to [_destinationLatLng].
+//   Future<void> _buildPolyLines({LatLng? driverLoc}) async {
+//     if (!widget.showPolyline) return;
+
+//     final result = await Direction.getDirections(
+//       googleMapsApiKey: widget.apiKey,
+//       origin: driverLoc ?? _sourceLatLng,
+//       destination: _destinationLatLng,
+//     );
+
+//     final polylineCoordinates = <LatLng>[];
+
+//     if (result != null && result.polylinePoints.isNotEmpty) {
+//       polylineCoordinates.addAll(result.polylinePoints);
+//     }
+
+//     final polyline = Polyline(
+//       polylineId: const PolylineId('default-polyline'),
+//       color: widget.routeColor,
+//       width: widget.routeWidth,
+//       points: polylineCoordinates,
+//     );
+
+//     widget.onPolylineUpdate?.call(polyline);
+
+//     if (driverLoc != null) _polylines.clear();
+//     _polylines.add(polyline);
+
+//     // setting map such as both source and
+//     // destinations markers can be seen
+//     if (result != null) {
+//       final controller = await getGoogleMapsController();
+
+//       controller.animateCamera(
+//         CameraUpdate.newLatLngBounds(result.bounds, 32),
+//       );
+
+//       widget.totalTimeCallback?.call(result.totalDuration);
+//       widget.totalDistanceCallback?.call(result.totalDistance);
+//     }
+
+//     setState(() {});
+//   }
+
+//   /// This function uses [GoogleMapsWidget.driverCoordinatesStream] which
+//   /// is a [Stream] of [LatLng]-[coordinates] and renders
+//   /// [GoogleMapsWidget.driverMarkerIconInfo] marker to show
+//   /// driver's location in realtime.
+//   Future<void> _listenToDriverCoordinates() async {
+//     final driverStream = widget.driverCoordinatesStream;
+//     if (driverStream == null) return;
+
+//     final driverMarkerBitmapDescriptor =
+//         await widget.driverMarkerIconInfo.bitmapDescriptor;
+
+//     _driverCoordinatesStreamSubscription = driverStream.listen((coordinate) {
+//       if (widget.updatePolylinesOnDriverLocUpdate) {
+//         _buildPolyLines(driverLoc: coordinate);
+//       }
+
+//       if (!widget.driverMarkerIconInfo.isVisible) return;
+
+//       _markersMap.remove(MarkerIconInfo.driverMarkerId);
+
+//       final driverMarker = widget.driverMarkerIconInfo;
+//       _markersMap[MarkerIconInfo.driverMarkerId] = Marker(
+//         markerId: MarkerIconInfo.driverMarkerId,
+//         position: coordinate,
+//         anchor: driverMarker.anchor,
+//         rotation: driverMarker.rotation,
+//         icon: driverMarkerBitmapDescriptor,
+//         onTap: driverMarker.onTapMarker == null
+//             ? null
+//             : () => driverMarker.onTapMarker!(coordinate),
+//         infoWindow: InfoWindow(
+//           onTap: driverMarker.onTapInfoWindow == null
+//               ? null
+//               : () => driverMarker.onTapInfoWindow!(coordinate),
+//           title: driverMarker.infoWindowTitle,
+//         ),
+//       );
+
+//       setState(() {});
+//     });
+//   }
+
+//   @override
+//   void initState() {
+//     _sourceLatLng = widget.sourceLatLng;
+//     _destinationLatLng = widget.destinationLatLng;
+
+//     _setSourceDestinationMarkers();
+//     _buildPolyLines();
+//     _listenToDriverCoordinates();
+
+//     super.initState();
+//   }
+
+//   @override
+//   void dispose() {
+//     _driverCoordinatesStreamSubscription?.cancel();
+
+//     if (_mapsControllerCompleter.isCompleted) {
+//       _mapsControllerCompleter.future.then(
+//         (controller) => controller.dispose(),
+//       );
+//     }
+
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GoogleMap(
+//       initialCameraPosition: CameraPosition(
+//         target: widget.defaultCameraLocation ?? _sourceLatLng,
+//         zoom: widget.defaultCameraZoom,
+//       ),
+//       markers: {..._markersMap.values, ...widget.markers},
+//       polylines: {..._polylines, ...widget.polylines},
+//       onMapCreated: (controller) {
+//         _mapsControllerCompleter.complete(controller);
+//         if (widget.onMapCreated != null) {
+//           return widget.onMapCreated!(controller);
+//         }
+//       },
+//       /////////////////////////////////////////////////
+//       // OTHER GOOGLE MAPS PARAMS
+//       /////////////////////////////////////////////////
+//       gestureRecognizers: widget.gestureRecognizers,
+//       compassEnabled: widget.compassEnabled,
+//       layoutDirection: widget.layoutDirection,
+//       mapToolbarEnabled: widget.mapToolbarEnabled,
+//       cameraTargetBounds: widget.cameraTargetBounds,
+//       mapType: widget.mapType,
+//       minMaxZoomPreference: widget.minMaxZoomPreference,
+//       rotateGesturesEnabled: widget.rotateGesturesEnabled,
+//       scrollGesturesEnabled: widget.scrollGesturesEnabled,
+//       zoomControlsEnabled: widget.zoomControlsEnabled,
+//       zoomGesturesEnabled: widget.zoomGesturesEnabled,
+//       liteModeEnabled: widget.liteModeEnabled,
+//       tiltGesturesEnabled: widget.tiltGesturesEnabled,
+//       myLocationEnabled: widget.myLocationEnabled,
+//       myLocationButtonEnabled: widget.myLocationButtonEnabled,
+//       padding: widget.padding,
+//       indoorViewEnabled: widget.indoorViewEnabled,
+//       trafficEnabled: widget.trafficEnabled,
+//       buildingsEnabled: widget.buildingsEnabled,
+//       polygons: widget.polygons,
+//       circles: widget.circles,
+//       onCameraMoveStarted: widget.onCameraMoveStarted,
+//       tileOverlays: widget.tileOverlays,
+//       onCameraMove: widget.onCameraMove,
+//       onCameraIdle: widget.onCameraIdle,
+//       onTap: widget.onTap,
+//       onLongPress: widget.onLongPress,
+//     );
+//   }
+// }
+
+// import 'dart:async';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:parking_spot_app/constants.dart' as constacts;
+// import 'package:url_launcher/url_launcher.dart';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+// import 'package:location/location.dart';
+
+// class MapSample extends StatefulWidget {
+//   static const routeName = "MapSample";
+
+//   @override
+//   State<MapSample> createState() => MapSampleState();
+// }
+
+// class MapSampleState extends State<MapSample> {
+//   Completer<GoogleMapController> _controller = Completer();
+
+//   static const LatLng sourceLoc= LatLng(32.0636787,34.7636925);
+//   static const LatLng destLoc=  LatLng(32.0647,34.7674);
+//   List<LatLng> polylineCoordinates=[];
+//   LocationData? currentLocation;
+
+
+//   void getCurrentLocation() async{
+//     Location location = Location();
+//     location.getLocation().then((location) {
+//     currentLocation =location;
+//     print(location);
+//     },);
+//     GoogleMapController googleMapController= await _controller.future;
+//     location.onLocationChanged.listen((newLoc) {
+//       currentLocation = newLoc;
+//       googleMapController.animateCamera(CameraUpdate.newCameraPosition(
+//         CameraPosition(
+//           zoom:16,
+//           target: LatLng(
+//             newLoc.latitude!, newLoc.longitude!
+//             ),
+//             )
+//       ));
+//       setState((){});
+//     });
+//   }
+
+//   void getPolyPoints() async {
+//     PolylinePoints polylinePoints =PolylinePoints();
+
+//     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(constacts.Constants.googleApiKey,
+//      PointLatLng(sourceLoc.latitude, sourceLoc.longitude),
+//       PointLatLng(destLoc.latitude,destLoc.longitude)
+//       );
+//     if (result.points.isNotEmpty){
+//       result.points.forEach((PointLatLng point) =>polylineCoordinates.add(
+//         LatLng(point.latitude, point.longitude),
+//         ),);
+//         setState((){});
+//     }
+//   }
+
+//   @override
+//   void initState(){
+//     getCurrentLocation();
+//     getPolyPoints();
+
+//     super.initState();
+//   }
+
+//  @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//       title: const Text("track"),
+//     ),
+//     body:currentLocation == null ? const Center(child: Text("Loading"))
+//    : GoogleMap(
+//       initialCameraPosition:CameraPosition(target: LatLng(
+//         currentLocation!.latitude!, currentLocation!.longitude!)
+//       , zoom:16),
+//         polylines: {
+//         Polyline(polylineId: PolylineId("route"),
+//         points: polylineCoordinates,
+//         color: Colors.lightBlue,
+//         width: 6)
+//         },
+//         markers: {
+//         const Marker(markerId: MarkerId("source"),
+//         position: sourceLoc,
+//         ),
+//         Marker(markerId:const  MarkerId("currentLocation"),
+//         position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+//         ),
+//         const Marker(markerId: MarkerId("destination"),
+//         position: destLoc,
+//         )
+//         },
+//         onMapCreated: (mapController){
+//           _controller.complete(mapController);
+//         }
+        
+//      ),
+     
+//       floatingActionButton: FloatingActionButton.extended(
+//       onPressed: () async {
+//         // Use the url_launcher package to launch the navigation app
+//         final url =
+//             'https://www.google.com/maps/dir/?api=1&destination=${destLoc.latitude},${destLoc.longitude}';
+//         if (await canLaunch(url)) {
+//           await launch(url);
+//         } else {
+//           throw 'Could not launch $url';
+//         }
+//       },
+//       label: const Text('Navigate'),
+//       icon: const Icon(Icons.navigation),
+//       ));
+//   }
+// }
+
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parking_spot_app/controllers/home_controller.dart';
+import 'package:parking_spot_app/controllers/navigation_controller.dart';
+import 'package:parking_spot_app/widget/direction_status_bar.dart';
+import 'package:parking_spot_app/constants.dart';
+import 'package:parking_spot_app/widget/bottom_bar.dart';
+import 'package:parking_spot_app/widget/destination_box.dart';
+import 'package:parking_spot_app/widget/search_bar.dart';
+
+class NavigationPage extends StatefulWidget {
+  static const routeName = "NavigationPage";
+  final String destinationAddress;
+  final LatLng destinationCoordinates;
+
+  const NavigationPage({super.key, required this.destinationAddress, required this.destinationCoordinates});
+
+  @override
+  _NavigationPageState createState() => _NavigationPageState();
+}
+
+class _NavigationPageState extends State<NavigationPage> {
+  late final NavigationMapController homeController;
+
+@override
+  void initState() {
+    super.initState();
+    initializeController();
+  }
+
+  void initializeController() {
+    homeController = Get.put(NavigationMapController(
+      widget.destinationAddress,
+      widget.destinationCoordinates,
+    ));
+  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   print(widget.destinationAddress);
+  //   homeController = Get.put(NavigationMapController(widget.destinationAddress,widget.destinationCoordinates));
+  //   Get.put(NavigationController());
+  // }
+  @override
+  Widget build(BuildContext context) {
+    // NavigationMapController homeController = Get.put(NavigationMapController(widget.destinationAddress,widget.destinationCoordinates));
+     Get.put(NavigationController());
+     print(homeController.destination);
+    return Obx(() => Scaffold(
+          body: Stack(
+            children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: homeController.initialCameraPosition,
+                myLocationEnabled: homeController.mapStatus.value != Constants.onDestination,
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                markers: homeController.markers.values.toSet(),
+                polylines: Set<Polyline>.of(homeController.polyline),
+                onMapCreated: (GoogleMapController controller) async {
+                  if (!homeController.googleMapsController!.isCompleted) {
+                  homeController.googleMapsController!.complete(controller);
+                  }
+                  Position position =
+                      await homeController.getMyCurrentLocation();
+                  homeController.mapStatus.value = Constants.idle;
+                  print("im hereeee");
+                  homeController.moveMapCamera(LatLng(position.latitude, position.longitude));
+                  homeController.setDestination();
+                },
+              ),
+              
+              // Visibility(
+              //   visible: homeController.mapStatus.value != Constants.onDestination,
+              //   child: const Positioned(
+              //       top: 30,
+              //       left: 0,
+              //       child: SearchBar(),
+              //   ),
+              // ),
+               Visibility(
+                visible: homeController.mapStatus.value == Constants.route,
+               // visible: true,
+                child: const Positioned(
+                  top: 0,
+                  left: 0,
+                  child: DestinationBox(),
+                ),
+              ),
+              Visibility(
+                visible: homeController.mapStatus.value == Constants.onDestination,
+                child: const Positioned(
+                  top: 31,
+                  left:0,
+                  child:  DirectionsStatusBar()
+                  ),
+              ),
+              Visibility(
+                visible: homeController.mapStatus.value == Constants.idle,
+              //  visible:true,
+                child: Positioned(
+                    bottom: 30,
+                    right: 20,
+                    child: FloatingActionButton(
+                      onPressed: () async {
+                        Position position =
+                            await homeController.getMyCurrentLocation();
+                        homeController.moveMapCamera(LatLng(
+                            position.latitude, position.longitude));
+                      },
+                      backgroundColor: Colors.white,
+                      child: Image.asset(
+                        Constants.locateMeIcon,
+                        scale: 4,
+                      ),
+                    )),
+              ),
+               Visibility(
+                visible: homeController.mapStatus.value != Constants.idle,
+                child: const Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: BottomBar(),
+                ),
+              )
+            ],
+          ),
+        ));
+  }
+  // @override
+  // void didUpdateWidget(NavigationPage oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.destinationAddress != widget.destinationAddress ||
+  //       oldWidget.destinationCoordinates != widget.destinationCoordinates) {
+  //         print("did changed");
+  //     homeController = Get.put(NavigationMapController(widget.destinationAddress,widget.destinationCoordinates));
+  //     // update any other necessary state here
+  //   }
+  // }
+   @override
+  void didUpdateWidget(NavigationPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.destinationAddress != widget.destinationAddress ||
+        oldWidget.destinationCoordinates != widget.destinationCoordinates) {
+      print("[GETX] Instance \"NavigationMapController\" has been created");
+      homeController.dispose();
+      homeController = Get.put(NavigationMapController(
+        widget.destinationAddress,
+        widget.destinationCoordinates,
+      ));
+      print("[GETX] Instance \"NavigationMapController\" has been initialized");
+    }
+  }
+   @override
+  void dispose() {
+    homeController.dispose();
+    super.dispose();
+  }
+}
