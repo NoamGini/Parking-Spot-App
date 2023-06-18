@@ -17,15 +17,6 @@ class DestinationBox extends StatelessWidget {
       padding: const EdgeInsets.only(top: 40,bottom: 20),
       child: Row(
         children: [
-          IconButton(
-              onPressed: () {
-                 navigationMapController.clearDestination();
-                 navigationController.directions.clear();
-                 //navigationController.reset();
-                  Navigator.pop(context);
-              },
-              icon: const Icon(CupertinoIcons.back)
-          ),
           const SizedBox(width: 10,),
           Expanded(
             child: Container(
@@ -36,6 +27,13 @@ class DestinationBox extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: Obx(()=>Text(navigationMapController.destination.value, overflow: TextOverflow.ellipsis, maxLines: 1,)),
             ),
+          ),
+          IconButton(
+              onPressed: () {
+                 navigationMapController.clearDestination();
+                  Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_forward)
           ),
           const SizedBox(width: 10,),
         ],

@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-//import 'package:parking_spot_app/google_map_widget.dart';
-// 'package:park_buddy/control/ScreenManager.dart';
-//import 'package:park_buddy/entity/CarparkAvailability.dart';
 import 'package:parking_spot_app/models/parking_info.dart';
 import 'package:parking_spot_app/pages/navigationPage.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parking_spot_app/models/user.dart';
 
 class SingleParkCard extends StatelessWidget {
   static const routeName = "SingleParkCard";
   final ParkingInfo parking;
   bool isTimeFilterActive;
- // final CarparkAvailability carparkAvailability;
- // CarparkCard(this.carpark, this.carparkAvailability);
-  SingleParkCard(this.parking,this.isTimeFilterActive);
-  Map colorDict={"פנוי": Colors.green,"מעט":Colors.orange , "מלא":Colors.red, "    ":Colors.grey};
-  ///Builds the SingleParkCard widget.
+  final User user;
+  bool flagKaholLavan;
+
+  SingleParkCard(this.parking,this.isTimeFilterActive, this.user, this.flagKaholLavan);
+  Map colorDict={"פנוי": Colors.green,"מעט":Colors.orange , "מלא":Colors.red,};
+
+  
   @override
   Widget build(BuildContext context) {
     String? parkingAvalability = parking.getStatus;
@@ -26,20 +25,18 @@ class SingleParkCard extends StatelessWidget {
     Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NavigationPage(destinationAddress: parking.getAddress, destinationCoordinates: parking.getCoordinates),)); 
-                 // builder: (context) => NavigationPage(destinationAddress: parking.getAddress, destinationCoordinates: const LatLng(32.0779222,34.7741656)),)); 
+                 builder: (context) => NavigationPage(destinationAddress: parking.getAddress, destinationCoordinates: parking.getCoordinates, user: user, flagKaholLavan: flagKaholLavan),)); 
   },
   child: Container(
-        padding: EdgeInsets.only(
+        padding: const EdgeInsets.only(
           top: 20,
           right: 10,
           left: 10,
         ),
-      //alignment: Alignment.center,
-      margin: EdgeInsets.all(7),
+      margin: const EdgeInsets.all(7),
       height: 100,
       decoration: BoxDecoration(
-      color: Colors.blue,
+      color: Color(0xFF262AAA),
       borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(children: <Widget>[
@@ -48,15 +45,15 @@ class SingleParkCard extends StatelessWidget {
             ClipOval(
               child: Container(
                   color: Colors.white,
-                  padding: EdgeInsets.all(10),
-                  child: Icon(
+                  padding: const EdgeInsets.all(10),
+                  child:const Icon(
                     Icons.local_parking_rounded,
                     color: Color(0xFF262AAA),
                     size: 40.0,
                   )),
             ),
           ]),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           Column(
@@ -68,21 +65,22 @@ class SingleParkCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   parking.getParkingName,
                   style: const TextStyle(
+                    color: Colors.white,
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
                   parking.getAddress,
-                  style: const TextStyle(
+                  style: const TextStyle(color: Colors.white,
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
                   parking.getParkingLotCompany,
-                  style: const TextStyle(
+                  style: const TextStyle(color: Colors.white,
                       fontWeight: FontWeight.bold),
                 ),
               ]),
-          Spacer(),
+          const Spacer(),
           Column(
               children: [
                 Container(
@@ -90,7 +88,7 @@ class SingleParkCard extends StatelessWidget {
                       Column(children: [
                         Row(children: [
                           Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(20)),
                                 color: Colors.white,
                             ),
@@ -104,7 +102,7 @@ class SingleParkCard extends StatelessWidget {
                             radius: 5.0,
                             backgroundColor:colorDict[parkingAvalability],
                           ),
-                          SizedBox(width: 15),
+                          const SizedBox(width: 15),
                           Text(
                             parking.getStatus.toString(),
                             style: const TextStyle(
@@ -113,19 +111,19 @@ class SingleParkCard extends StatelessWidget {
                                     FontWeight.bold),
                           )])),
                         ]),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         Row(children: <Widget>[
                           Text(
                             parking.getDistanceFromDestination,
-                            style: const TextStyle(
+                            style: const TextStyle(color: Colors.white,
                                 fontSize: 15.0,
                                 fontWeight:
                                     FontWeight.bold),
                           ),
                           if (isTimeFilterActive) // <-- render time if filter is active
-                             SizedBox(width: 10),
+                             const SizedBox(width: 10),
                           if (isTimeFilterActive)          
                             Text(
                               parking.getwalkingTime,
@@ -158,7 +156,7 @@ class SingleParkCard extends StatelessWidget {
             radius: 25.0,
             //backgroundImage: AssetImage('assets/images/parking-icon.png'),
           ),
-          title: Text(parking.getParkingCode),
+          title: Text(parking.getParkingCode, ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

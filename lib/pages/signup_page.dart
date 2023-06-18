@@ -26,13 +26,25 @@ class _SignUpState extends State<SignUpPage> {
   bool finalResponse=false;
   
 
-  @override
-  void dispose(){
+@override
+void dispose() {
+  // Dispose of the controllers if they were used by the user
+  if (nameController.text.isNotEmpty) {
     nameController.dispose();
+  }
+  if (emailController.text.isNotEmpty) {
     emailController.dispose();
+  }
+  if (passwordController.text.isNotEmpty) {
     passwordController.dispose();
+  }
+  if (validatePasswordController.text.isNotEmpty) {
     validatePasswordController.dispose();
   }
+
+  // Call the superclass dispose() method
+  super.dispose();
+}
 
   Future<void> saveData() async {
     final validation = formKey.currentState?.validate();
@@ -51,7 +63,11 @@ class _SignUpState extends State<SignUpPage> {
           {'name': nameController.text,
             'email': emailController.text,
             'password': passwordController.text,
-            'validatePassword': validatePasswordController.text}));
+            'validatePassword': validatePasswordController.text,
+            'parking': null,
+            'points': 0,
+            'avatar': null
+            }));
       
       final jsonResponse = json.decode(response.body);
       final message = jsonResponse['response'];

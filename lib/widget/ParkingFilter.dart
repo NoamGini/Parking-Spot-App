@@ -198,15 +198,16 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                 height: 37,
                 padding: EdgeInsets.only(right: 6.0),
                 decoration:BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(5),
+                  color:  Colors.grey[200],
+                  borderRadius: BorderRadius.circular(5) ,
+                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
                     ),
               child: DropdownButton<String>(
                 value: walkingTime,
                 hint: Text('זמן הליכה',),
-                style: TextStyle(color: Colors.white),
-                dropdownColor: Colors.blue, // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.white), // Change the color of the dropdown icon
+               style: TextStyle(color: Colors.black),
+                dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
+                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -257,16 +258,16 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                 height: 37,               
                padding: EdgeInsets.only(right: 6.0),
               decoration:BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(5),
+                 color:  Colors.grey[200],
+                  borderRadius: BorderRadius.circular(5) ,
+                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
                     ),
               child: DropdownButton<String>(
                 value: filterByWalkingDistance,
                 hint: Text('עד מרחק'),
-                style: TextStyle(color: Colors.white),
-                dropdownColor: Colors.blue,
-                 // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.white), // Change the color of the dropdown icon
+                style: TextStyle(color: Colors.black),
+                dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
+                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -289,19 +290,19 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                   ),
                   DropdownMenuItem(
                     value: '500',
-                    child: Text('עד 500 מטר'),
+                    child: Text(' 500 מטר'),
                   ),
                   DropdownMenuItem(
                     value: '1000',
-                    child: Text('עד 1 ק"מ'),
+                    child: Text(' 1 ק"מ'),
                   ),
                   DropdownMenuItem(
                     value: '2000',
-                    child: Text('עד 2 ק"מ'),
+                    child: Text(' 2 ק"מ'),
                   ),
                   DropdownMenuItem(
                     value: '5000',
-                    child: Text('עד 5 ק"מ'),
+                    child: Text(' 5 ק"מ'),
                   ),
                 ],
               )
@@ -311,16 +312,16 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
               height: 37,
               padding: EdgeInsets.only(right: 6.0),
               decoration:BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(5),
+                 color:  Colors.grey[200],
+                  borderRadius: BorderRadius.circular(5) ,
+                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
                     ),
               child: DropdownButton<String>(
                 value: filterByCompany,
                 hint: Text('חברת חניונים',),
-                style: TextStyle(color: Colors.white),
-                
-                dropdownColor: Colors.blue, // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.white), // Change the color of the dropdown icon
+                style: TextStyle(color: Colors.black),
+                dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
+                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -354,18 +355,21 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
               ),
               SizedBox(width: 10),
                Container(
+              
               height: 37,
               padding: EdgeInsets.only(right: 6.0),
               decoration:BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(5),
+                  color:  Colors.grey[200],
+                  borderRadius: BorderRadius.circular(5) ,
+                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
                     ),
+              
               child: DropdownButton<String>(
                 value: filterByStatus,
                 hint: Text('סטטוס',),
-                style: TextStyle(color: Colors.white),
-                dropdownColor: Colors.blue, // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.white), // Change the color of the dropdown icon
+                style: TextStyle(color: Colors.black),
+                dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
+                icon: Icon(Icons.arrow_drop_down, color: Colors.black), // Change the color of the dropdown icon
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -408,11 +412,15 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
         Center(
           child:
         ElevatedButton(
-            style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 15), primary: Colors.blue),
+            style: ElevatedButton.styleFrom(
+            textStyle: const TextStyle(fontSize: 15,),
+            primary: Colors.grey[200],
+            side: BorderSide(color: Color.fromARGB(255, 16, 19, 116), width: 2), // Add a border color
+          ),
             onPressed:(){ resetFilters("reset all",filterVariables);
             Future<List<ParkingInfo>> newList= getParkingByFilter('company','reset');
                   widget.updateParkingLots(newList,false);},
-            child: const Text('איפוס'),
+            child: const Text('איפוס',  style: TextStyle(color: Colors.black)),
           ),
         ),
       ],

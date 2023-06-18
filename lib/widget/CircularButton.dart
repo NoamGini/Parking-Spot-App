@@ -35,6 +35,7 @@ class CircularButton extends StatelessWidget {
                 color: Colors.white,
                 fontSize: 20,
               ),
+              textAlign: TextAlign.center, 
             ),
           ],
         ),
