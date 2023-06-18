@@ -1,36 +1,47 @@
 import 'dart:core';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parking_spot_app/models/parking_kahol_lavan.dart';
 
 class User {
   User(
-    this._name,
-    this._emailAddress,
-    this._password,
-    this._parkingHistory,
-    this._parkingLocation,
+    this.name,
+    this.emailAddress,
+    this.password,
+    this.parking,
+    this.points,
   );
 
-  final String _name;
-  final String _emailAddress;
-  final String _password;
-  final List _parkingHistory;
-  //maybe should be coordinates
-  final String _parkingLocation;
+  final String name;
+  final String emailAddress;
+  final String password;
+  ParkingKaholLavan? parking;
+  int points;
 
 
   String get getName {
-    return _name;
+    return name;
   }
    String get getEmailAddress {
-    return _emailAddress;
+    return emailAddress;
   }
    String get getPassword {
-    return _password;
+    return password;
   }
-   List get getParkingHistory {
-    return _parkingHistory;
+
+    ParkingKaholLavan? get getparking {
+    return parking;
   }
-    String get getparkingLocation {
-    return _parkingLocation;
+    int get getPoints{
+      return points;
   }
+
+  set setParking(newParking){
+      parking=newParking;
+  }
+  
+
+  addPoints(int addedPoints){
+    points=addedPoints;
+  }
+
 }

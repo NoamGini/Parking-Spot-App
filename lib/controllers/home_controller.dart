@@ -1,24 +1,20 @@
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-//import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:google_directions_api/google_directions_api.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:parking_spot_app/constants.dart';
-import 'package:google_places_for_flutter/google_places_for_flutter.dart';
 import 'dart:ui' as ui;
 
 class NavigationMapController extends GetxController with GetTickerProviderStateMixin {
- final LatLng destinationCoordinates;
- final String destinationAddress;
+  LatLng destinationCoordinates;
+  String destinationAddress;
   NavigationMapController(this.destinationAddress,
     this.destinationCoordinates);
-  late Completer<GoogleMapController>? googleMapsController = Completer();
+  late Completer<GoogleMapController> googleMapsController = Completer();
   var destination = "".obs;
   var distanceLeft = "".obs;
   var timeLeft = "".obs;
@@ -29,7 +25,7 @@ class NavigationMapController extends GetxController with GetTickerProviderState
   List<LatLng> polylineCoordinates = <LatLng>[].obs;
   Set<Polyline> polyline = <Polyline>{}.obs;
   Animation<double>? animation;
-  //LatLng destinationCoordinates = const LatLng(32.0645403, 34.7648474);
+
 
   CameraPosition initialCameraPosition = const CameraPosition(
     target: LatLng(32.0636787,34.7636925),
@@ -41,16 +37,16 @@ class NavigationMapController extends GetxController with GetTickerProviderState
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       DirectionsService.init(Constants.googleApiKey);
     });
-
     super.onInit();
   }
 
   Future moveMapCamera(LatLng target,
       {double zoom = 16, double bearing = 0}) async {
+
     CameraPosition newCameraPosition =
         CameraPosition(target: target, zoom: zoom, bearing: bearing, tilt: 45.0);
 
-    final GoogleMapController controller = await googleMapsController!.future;
+    final GoogleMapController controller = await googleMapsController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(newCameraPosition));
   }
 
@@ -75,57 +71,28 @@ class NavigationMapController extends GetxController with GetTickerProviderState
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    Position location = await Geolocator.getCurrentPosition(); 
-    // print(location.latitude);
-    // print(location.longitude);
     return await Geolocator.getCurrentPosition();
   }
 
-  void dispose() {
-  googleMapsController = null;
- // super.dispose();
-  }
-
-
+  
   clearDestination() async {
-    print("CLEAR");
+    destinationAddress="";
+    destinationCoordinates= const LatLng(0,0);
     destination.value = "";
     mapStatus.value = Constants.idle;
     polyline.clear();
     polylineCoordinates.clear();
     markers.clear();
-    Position position = await getMyCurrentLocation();
-    moveMapCamera(LatLng(position.latitude, position.longitude));
-
-
- // late Completer<GoogleMapController> googleMapsController = Completer();
-  
-    // destination.value = "";
-    // mapStatus.value = Constants.route;
-    // timeLeft.value="";
-    // gettingRoute.value = false;
-    // polyline.clear();
-    // polylineCoordinates.clear();
-    // markers.clear();
-    // Position position = await getMyCurrentLocation();
-    // moveMapCamera(LatLng(position.latitude, position.longitude));
-    // dispose();
-    // animation=null;
   }
 
-  setDestination() async {
-    destination.value = destinationAddress;
+  setDestination(String address, LatLng coordinates ) async {
+    destination.value =address;
+    destinationAddress =address;
+    destinationCoordinates=coordinates;
     mapStatus.value = Constants.route;
-   // var geolocation = await place.geolocation;
-    // destinationCoordinates = LatLng(
-    //     geolocation?.coordinates.latitude, geolocation?.coordinates.longitude);
-    // await drawRoute(destinationCoordinates);
-    // await addDestinationMarker(destinationCoordinates);
-    // getTotalDistanceAndTime(destinationCoordinates);
-    print(destinationCoordinates);
-    await drawRoute(destinationCoordinates);
-    await addDestinationMarker(destinationCoordinates);
-    getTotalDistanceAndTime(destinationCoordinates);
+    await drawRoute(coordinates);
+    await addDestinationMarker(coordinates);
+    getTotalDistanceAndTime(coordinates);
   }
 
   drawRoute(LatLng destination) async {
@@ -191,7 +158,7 @@ class NavigationMapController extends GetxController with GetTickerProviderState
           if (point.longitude > maxLong) maxLong = point.longitude;
         }
       }
-      var c = await googleMapsController!.future;
+      var c = await googleMapsController.future;
       c.animateCamera(CameraUpdate.newLatLngBounds(
           LatLngBounds(
               southwest: LatLng(minLat, minLong),
@@ -213,7 +180,6 @@ class NavigationMapController extends GetxController with GetTickerProviderState
     final Uint8List markerIcon =
        await getBytesFromAsset(Constants.driverCarImage, 100);
      MarkerId id = const MarkerId("driverMarker");
-    // print("in drivermarker");
 
     AnimationController animationController = AnimationController(
       duration: const Duration(seconds: 3),
@@ -271,7 +237,7 @@ class NavigationMapController extends GetxController with GetTickerProviderState
       distance = distance + elements[i]['distance']['value'];
       duration = duration + elements[i]['duration']['value'];
     }
-    if (distance < 20) {
+    if (distance < 5) {
       arrived.value = true;
     } else {
       arrived.value = false;

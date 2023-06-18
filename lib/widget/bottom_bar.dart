@@ -47,7 +47,7 @@ class BottomBar extends StatelessWidget {
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: BoxDecoration(
                       color: navigationMapController.mapStatus.value == Constants.route
-                          ? Colors.blueAccent
+                          ? const Color.fromRGBO(38, 42, 170, 1)
                           : Colors.redAccent,
                       borderRadius: BorderRadius.circular(100)),
                   child: Text(

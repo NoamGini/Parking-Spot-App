@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-//import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -28,7 +26,6 @@ class NavigationController extends GetxController {
             .listen((Position? position) async{
               LatLng newPosition = LatLng(position!.latitude, position.longitude);
               newLocation=newPosition;
-              print(newPosition.latitude);
               navigationMapController.addDriverMarker(LatLng(oldLatitude.value, oldLongitude.value), newPosition);
               oldLatitude.value = position.latitude;
               oldLongitude.value = position.longitude;      
@@ -36,7 +33,6 @@ class NavigationController extends GetxController {
               navigationMapController.getTotalDistanceAndTime(navigationMapController.destinationCoordinates);
               bool isOnRoute = getRouteDeviation(newPosition);
               if(!isOnRoute || directions.isEmpty){
-                print("directions empty");
                 await navigationMapController.drawRoute(navigationMapController.destinationCoordinates);
                 await getDirections(LatLng(position.latitude, position.longitude), navigationMapController.destinationCoordinates);
               }
@@ -58,7 +54,7 @@ class NavigationController extends GetxController {
     positionStream?.cancel();
     navigationMapController.mapStatus.value = Constants.route;
     navigationMapController.positionCameraToRoute(navigationMapController.polyline);
-    navigationMapController.markers.remove(const MarkerId("driverMarker"));
+    // navigationMapController.markers.remove(const MarkerId("driverMarker"));
   }
 
   getRouteDeviation(LatLng location) {
@@ -76,15 +72,10 @@ class NavigationController extends GetxController {
   getDirections(LatLng from, LatLng to) async {
     String origin = "${from.latitude},${from.longitude}";
     String destinations = "${to.latitude},${to.longitude}";
-    print(origin);
-    print(destinations);
     Dio dio = Dio();
     var response = await dio.get(
         "https://maps.googleapis.com/maps/api/directions/json?units=imperial&origin=$origin&destination=$destinations&key=${Constants.googleApiKey}&language=he");
     var data = response.data;
-    if(data == null){
-      print("im empty");
-    }
     final dir = data['routes'][0]['legs'][0]['steps']
         .map((h) => {
               "instructions": h['html_instructions'],
@@ -92,10 +83,6 @@ class NavigationController extends GetxController {
             })
         .toList();
     directions.value = [...dir];
-    print("hello");
-    print(directions[0]);
-    print(directions[1]);
-    print(directions[2]);
     update();
   }
 

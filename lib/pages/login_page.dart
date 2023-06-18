@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:parking_spot_app/models/parking_kahol_lavan.dart';
 import 'package:parking_spot_app/pages/homepage.dart';
 import 'package:parking_spot_app/pages/signup_page.dart';
 import 'package:parking_spot_app/widget/AppTextField.dart';
@@ -8,6 +9,7 @@ import 'package:parking_spot_app/widget/background.dart';
 import 'package:parking_spot_app/widget/AppRaisedButton.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parking_spot_app/models/user.dart';
 
 
@@ -55,18 +57,39 @@ class LogInPage extends StatelessWidget {
   }
 
    User extractJsonValues(jsonObject) {
-    print(jsonObject);
+      ParkingKaholLavan? parkingKaholLavan;
+      print(jsonObject);
       String name = jsonObject["name"];
       print(name);
       String emailAddress = jsonObject["email"];
       String password = jsonObject["password"];
-      String parkingLocation = jsonObject["parking_location"];
-      List parkingHistory = jsonObject["parking-history"];
+      int points = jsonObject["points"];
+      print(points);
 
-      User user = User(name,emailAddress,password,parkingHistory,parkingLocation);
+      if (jsonObject["parking"] != null){
+        String address = jsonObject["parking"]["address"];
+        print(address);
+        String status = jsonObject["parking"]["status"];
+        String latString= jsonObject["parking"]["latitude"].toString();
+        String lngString= jsonObject["parking"]["longitude"].toString();
+        print(latString);
+        double lat =double.parse(latString);
+        double lng =double.parse(lngString);
+        LatLng coordinates = LatLng(lat, lng);
+        print(coordinates);
+        String releaseTime =jsonObject["parking"]["release_time"];
+        print(releaseTime);
+        
+        parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime);
+        print(parkingKaholLavan);
+      }
+      else{
+      parkingKaholLavan = null;
+      }
+
+      User user = User(name,emailAddress,password,parkingKaholLavan,points);
       print("i pass it");
       print(user.getEmailAddress);
-     
        return user;
     }
 
@@ -118,7 +141,24 @@ class LogInPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("התחברות", style: TextStyle(fontSize: 50, color: Colors.black, fontWeight: FontWeight.w100)),
+          Container(
+  alignment: Alignment.center,
+  padding: const EdgeInsets.symmetric(vertical: 20),
+  child: Column(
+    children: [
+      Text(
+        "Parking Spot",
+        style: TextStyle(
+          fontSize: 32,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+),
+
+        //  const Text("התחברות", style: TextStyle(fontSize: 50, color: Colors.black, fontWeight: FontWeight.w100)),
           const SizedBox(height: 45),
           AppTextField( "מייל", "הכנס מייל", Icons.people,emailController,false),
           const SizedBox(height: 20),

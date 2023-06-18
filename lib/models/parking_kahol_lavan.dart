@@ -3,12 +3,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ParkingKaholLavan {
   ParkingKaholLavan(
-      this._address,
-      this._status,
-      this._coordinates,
-      this._release_time,
+    this._address,
+    this._status,
+    this._coordinates,
+    this._release_time,
 
-      );
+  );
 
   final String _address;
   String _status;
@@ -30,17 +30,6 @@ class ParkingKaholLavan {
 
   String get getReleaseTime{
     return _release_time;
-  }
-
-  // Convert object to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'address': _address,
-      'latitude': getCoordinates.latitude,
-      'longitude': getCoordinates.longitude,
-      'release_time': _release_time,
-      'status': _status,
-    };
   }
 
 }
