@@ -41,7 +41,7 @@ class ParkingInfo {
   String get getwalkingTime{
     List<String> spliting = _walkingTime.split(" ");
     if (spliting[1]=="mins"){
-      _walkingTime = spliting[0]+" דק'";
+      _walkingTime = "${spliting[0]} דק'";
     }
     return _walkingTime;
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class MenuItem extends StatelessWidget {
 
@@ -26,31 +25,5 @@ class MenuItem extends StatelessWidget {
       hoverColor: hoverColor,
       onTap: onTap,
     );
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(16),
-    //     child: Row(
-    //       textDirection: TextDirection.rtl,
-    //       children: <Widget>[
-    //         const SizedBox(width: 20),
-    //         Padding(
-    //           padding: const EdgeInsets.only(left:20),
-    //           child: Icon(
-    //             icon,
-    //             color: Colors.white,
-    //             size:30,
-    //           ),
-    //         ),
-    //         Text(
-    //           title,
-    //           style: const TextStyle(
-    //             fontWeight: FontWeight.w300,
-    //             fontSize: 20,
-    //             color: Colors.white,
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }

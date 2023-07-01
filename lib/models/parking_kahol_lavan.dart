@@ -7,6 +7,7 @@ class ParkingKaholLavan {
     this._status,
     this._coordinates,
     this._release_time,
+    this._hidden,
 
   );
 
@@ -14,6 +15,7 @@ class ParkingKaholLavan {
   String _status;
   String _release_time;
   final LatLng _coordinates;
+  bool _hidden;
 
 
   LatLng get getCoordinates {
@@ -22,6 +24,10 @@ class ParkingKaholLavan {
 
   String get getStatus {
     return _status;
+  }
+
+   bool get getHidden {
+    return _hidden;
   }
 
   String get getAddress {

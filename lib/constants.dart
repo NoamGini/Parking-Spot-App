@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-//import 'package:parking_spot_app/google_map_widget.dart';
-
-/// Defines all the constants used by [GoogleMapsWidget].
 class Constants {
   Constants._();
-  static const googleApiKey ="AIzaSyDKupYcq3t0hyHTn-YQRriH57ch-Ekw0cs";
+  static const googleApiKey ="AIzaSyDGG3PgHwpThGyw-BeKsaTs3mS5eS3BZXE";
   static const kDefaultCameraZoom = 15.0;
   static const kRouteWidth = 5;
   static const kRouteColor = Colors.indigo;

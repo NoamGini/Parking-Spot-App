@@ -1,12 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:parking_spot_app/models/parking_kahol_lavan.dart';
 import 'package:parking_spot_app/pages/homepage.dart';
 import 'package:parking_spot_app/pages/signup_page.dart';
 import 'package:parking_spot_app/widget/AppTextField.dart';
 import 'package:parking_spot_app/widget/background.dart';
-import 'package:parking_spot_app/widget/AppRaisedButton.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -30,11 +27,11 @@ class LogInPage extends StatelessWidget {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('משתמש איננו קיים'),
-        content: Text('על מנת להירשם עבור לעמוד ההרשמה'),
+        title: const Text('משתמש איננו קיים'),
+        content: const Text('על מנת להירשם עבור לעמוד ההרשמה'),
         actions: [
           TextButton(
-            child: Text('אישור'),
+            child: const Text('אישור'),
             onPressed: () {
                Navigator.of(context).pop();
             },
@@ -58,38 +55,29 @@ class LogInPage extends StatelessWidget {
 
    User extractJsonValues(jsonObject) {
       ParkingKaholLavan? parkingKaholLavan;
-      print(jsonObject);
       String name = jsonObject["name"];
-      print(name);
       String emailAddress = jsonObject["email"];
       String password = jsonObject["password"];
       int points = jsonObject["points"];
-      print(points);
 
       if (jsonObject["parking"] != null){
         String address = jsonObject["parking"]["address"];
-        print(address);
         String status = jsonObject["parking"]["status"];
         String latString= jsonObject["parking"]["latitude"].toString();
         String lngString= jsonObject["parking"]["longitude"].toString();
-        print(latString);
         double lat =double.parse(latString);
         double lng =double.parse(lngString);
         LatLng coordinates = LatLng(lat, lng);
-        print(coordinates);
         String releaseTime =jsonObject["parking"]["release_time"];
-        print(releaseTime);
+        bool hidden = jsonObject["parking"]["hidden"];
         
-        parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime);
-        print(parkingKaholLavan);
+        parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime,hidden);
       }
       else{
       parkingKaholLavan = null;
       }
 
       User user = User(name,emailAddress,password,parkingKaholLavan,points);
-      print("i pass it");
-      print(user.getEmailAddress);
        return user;
     }
 
@@ -104,11 +92,7 @@ class LogInPage extends StatelessWidget {
           }));
     
     final message = json.decode(response.body);
-   // final message = jsonResponse['response'];
-    print("message");
-    print(message);
-    User user = extractJsonValues(message);
-      //return that person         
+    User user = extractJsonValues(message);        
     return user;
     }
   
@@ -127,7 +111,6 @@ class LogInPage extends StatelessWidget {
       final jsonResponse = json.decode(response.body);
       final message = jsonResponse['response'];
       if (message != "not exist"){
-        //create a
         finalResponse= true;
         return true;
       }
@@ -145,8 +128,8 @@ class LogInPage extends StatelessWidget {
   alignment: Alignment.center,
   padding: const EdgeInsets.symmetric(vertical: 20),
   child: Column(
-    children: [
-      Text(
+    children: const [
+       Text(
         "Parking Spot",
         style: TextStyle(
           fontSize: 32,
@@ -158,14 +141,13 @@ class LogInPage extends StatelessWidget {
   ),
 ),
 
-        //  const Text("התחברות", style: TextStyle(fontSize: 50, color: Colors.black, fontWeight: FontWeight.w100)),
           const SizedBox(height: 45),
           AppTextField( "מייל", "הכנס מייל", Icons.people,emailController,false),
           const SizedBox(height: 20),
           AppTextField("סיסמא", "הכנס סיסמא", Icons.lock,passwordController,true),
           const SizedBox(height: 40),
            ElevatedButton(
-        child: Text("כניסה", style: const TextStyle(
+        child: Text("כניסה", style: TextStyle(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.bold)),
@@ -180,9 +162,7 @@ class LogInPage extends StatelessWidget {
             bool c = await checkData();
             if (c){
               User user = await getUser();
-              print(user);
               clearText();
-              //create person, pass the person to homePage
               Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => HomePage(user: user)),

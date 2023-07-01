@@ -45,8 +45,8 @@ class NavigationController extends GetxController {
     positionStream?.cancel();
     positionStream = null;
     oldLatitude.value = 0.0;
-    oldLongitude .value= 0.0;
-    newLocation= LatLng(0, 0);
+    oldLongitude.value= 0.0;
+    newLocation= const LatLng(0, 0);
 
   }
 
@@ -54,7 +54,6 @@ class NavigationController extends GetxController {
     positionStream?.cancel();
     navigationMapController.mapStatus.value = Constants.route;
     navigationMapController.positionCameraToRoute(navigationMapController.polyline);
-    // navigationMapController.markers.remove(const MarkerId("driverMarker"));
   }
 
   getRouteDeviation(LatLng location) {

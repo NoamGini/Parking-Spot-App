@@ -17,6 +17,8 @@ import 'package:google_maps_utils/google_maps_utils.dart';
 import 'dart:math';
 import 'package:parking_spot_app/models/user.dart';
 
+import '../pages/arrivalpage.dart';
+
 class DirectionsStatusBar extends StatelessWidget {
   User user;
   final String address;
@@ -52,8 +54,9 @@ class DirectionsStatusBar extends StatelessWidget {
         print(coordinates);
         String releaseTime =jsonObject["parking"]["release_time"];
         print(releaseTime);
+        bool hidden = jsonObject["parking"]["hidden"];
         
-        parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime);
+        parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime,hidden);
         print(parkingKaholLavan);
       }
       else{
@@ -88,7 +91,8 @@ class DirectionsStatusBar extends StatelessWidget {
     print(message);
     print(user);
     User updatedUser = extractJsonValues(message,user);
-      //return that person         
+      //return that person 
+    //flagKaholLavan = false;        
     return updatedUser;
     }
 
@@ -96,114 +100,113 @@ class DirectionsStatusBar extends StatelessWidget {
 
 showAlertDialog(BuildContext context, NavigationController navigationController) {
   if(flagKaholLavan) {
- // navigationController.stopNavigation();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-   showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Color.fromARGB(255, 241, 238, 238),
-      title: const Text('הגעת ליעד!'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-          onPressed: () async {
-            User theUser = await grabbedParking(user, address);
-            user = theUser;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children:  [
-              SizedBox(
-                width: 40.0, // Adjust the width of the SizedBox to provide space for the icon
-                child: Icon(Icons.monetization_on_rounded, size: 40, color: Colors.amber),
-              ),
-              SizedBox(width: 5.0),
-              Flexible(
-              child: Text(
-                '${user.getName}, קיבלת 2 נקודות!',
-                 overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
-                // maxLines: 1, // Limit text to one line
-              ),
-             ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children:  [
-              SizedBox(height: 10.0),
-              Text(
-                '+2',
-                style: TextStyle(fontSize: 30.0, color:Colors.amber, fontWeight: FontWeight.bold, ),
-              ),
-              Text('סך הכל נקודות: ${user.getPoints}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                   
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage(user: user,)),
-                    );
-               // Navigator.of(context).pop(); // Close the pop-up window
-              },
-              child: const Text('אישור'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary:  Color(0xFF262AAA),
-              onPrimary: Colors.white,
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18.0,
-              ),
-            ),
-            child: const Text('חניתי בחנייה'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-               Navigator.of(context).pop();
-                // navigate to the search parking by map page 
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: Color.fromARGB(255, 241, 238, 238),
+        title: const Text('הגעת ליעד!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+            onPressed: () async {
+              User theUser = await grabbedParking(user, address);
+              user = theUser;
               Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage(user: user)),
-                    );
-            },
-            style: ElevatedButton.styleFrom(
-              primary:  Color(0xFF262AAA),
-              onPrimary: Colors.white,
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18.0,
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage(user: user,)),
+                      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children:  [
+                SizedBox(
+                  width: 40.0, // Adjust the width of the SizedBox to provide space for the icon
+                  child: Icon(Icons.monetization_on_rounded, size: 40, color: Colors.amber),
+                ),
+                SizedBox(width: 5.0),
+                Flexible(
+                child: Text(
+                  '${user.getName}, קיבלת 2 נקודות!',
+                  overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text('חפש מחדש'),
-                SizedBox(width: 6.0),
-                Icon(Icons.refresh, color: Colors.white), // Add the refresh icon
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  });
-  },
-);
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children:  [
+                SizedBox(height: 10.0),
+                Text(
+                  '+2',
+                  style: TextStyle(fontSize: 30.0, color:Colors.amber, fontWeight: FontWeight.bold, ),
+                ),
+                Text('סך הכל נקודות: ${user.getPoints}'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                    
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage(user: user,)),
+                      );
+                },
+                child: const Text('אישור'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary:  Color(0xFF262AAA),
+                onPrimary: Colors.white,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+              child: const Text('חניתי בחנייה'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage(user: user)),
+                      );
+              },
+              style: ElevatedButton.styleFrom(
+                primary:  Color(0xFF262AAA),
+                onPrimary: Colors.white,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text('חפש מחדש'),
+                  SizedBox(width: 6.0),
+                  Icon(Icons.refresh, color: Colors.white), // Add the refresh icon
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+    },
+  );
 }
 else{
-  //navigationController.stopNavigation();
   WidgetsBinding.instance.addPostFrameCallback((_) {
    showDialog(
   context: context,
@@ -265,13 +268,6 @@ else{
                 ]),
             child: navigationMapController.arrived.value ?
             showAlertDialog(context, navigationController)
-            
-            //  const Align(
-            //   alignment: Alignment.center,
-            // //  child: Text("You've Arrived!", style: TextStyle(fontSize: 20, color: Colors.white),),
-            // child :  showAlertDialogSucc(context);
-            
-            // ) 
               : Row(
               children: [
                  Padding(

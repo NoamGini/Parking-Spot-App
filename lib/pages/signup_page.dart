@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:parking_spot_app/pages/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 
 class SignUpPage extends StatefulWidget {
   static const routeName = "SignUpPage";
@@ -13,8 +11,6 @@ class SignUpPage extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
 }
-
-
 
 class _SignUpState extends State<SignUpPage> {
   final nameController = TextEditingController();
@@ -84,11 +80,11 @@ showAlertDialogSucc(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('רישום בוצע!'),
-        content: Text('נרשמת בהצלחה'),
+        title: const Text('רישום בוצע!'),
+        content: const Text('נרשמת בהצלחה'),
         actions: [
           TextButton(
-            child: Text('אישור'),
+            child: const Text('אישור'),
             onPressed: () {
               Navigator.push(
                         context,
@@ -107,11 +103,11 @@ showAlertDialogExistUser(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('משתמש קיים'),
-        content: Text('משתמש זה כבר קיים במערכת.'),
+        title: const Text('משתמש קיים'),
+        content: const Text('משתמש זה כבר קיים במערכת.'),
         actions: [
           TextButton(
-            child: Text('עבור לעמוד הכניסה'),
+            child: const Text('עבור לעמוד הכניסה'),
             onPressed: () {
               Navigator.push(
                         context,
@@ -120,7 +116,7 @@ showAlertDialogExistUser(BuildContext context) {
             },
           ),
           TextButton(
-            child: Text('הישאר בעמוד'),
+            child: const Text('הישאר בעמוד'),
             onPressed: () {
                Navigator.of(context).pop();
             },
@@ -137,7 +133,7 @@ showAlertDialogExistUser(BuildContext context) {
         body: SingleChildScrollView(
         child: Form( key: formKey,
          child: Padding(
-          padding: const EdgeInsets.only(top: 50.0), // Add top padding
+          padding: const EdgeInsets.only(top: 50.0),
           child: Container(
           padding: const EdgeInsets.all(30),
           width: double.infinity,
@@ -153,7 +149,7 @@ showAlertDialogExistUser(BuildContext context) {
               const SizedBox(height: 45),
               TextFormField(
                   controller: nameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: "שם מלא",
                     hintText: "הכנס שם מלא",
                     prefixIcon: Icon(
@@ -176,7 +172,7 @@ showAlertDialogExistUser(BuildContext context) {
               const SizedBox(height: 20),
               TextFormField(
                     controller: emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "מייל",
                       hintText: "הכנס מייל",
                       prefixIcon: Icon(
@@ -203,7 +199,7 @@ showAlertDialogExistUser(BuildContext context) {
                     controller: passwordController,
                     obscureText: true, //hide text
                     obscuringCharacter: "*",
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "סיסמא",
                       hintText: "הכנס סיסמא",
                       prefixIcon: Icon(
@@ -230,7 +226,7 @@ showAlertDialogExistUser(BuildContext context) {
                     controller: validatePasswordController,
                     obscureText: true, //hide text
                     obscuringCharacter: "*",
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "וידוא סיסמא",
                       hintText: "חזור על הסיסמא",
                       prefixIcon: Icon(

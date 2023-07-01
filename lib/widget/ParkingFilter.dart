@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:parking_spot_app/models/parking_info.dart';
-import 'package:parking_spot_app/pages/resultspage.dart' as resultsPage;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -125,7 +124,6 @@ Future<List<ParkingInfo>> filterCombo(Map<String, dynamic> filtersNameList,Strin
         print(currentObject.getParkingName.toString());
         print(comboListJ[k].getParkingName);
         if (currentObject.getParkingName == comboListJ[k].getParkingName) {
-          print("found something");
           foundInCurrentList = true;
           break;
         }
@@ -139,7 +137,6 @@ Future<List<ParkingInfo>> filterCombo(Map<String, dynamic> filtersNameList,Strin
 
     // Add the current object to the common objects list if it appears in all lists
     if (foundInAll) {
-      print(currentObject.getParkingName);
       commonObjects.add(currentObject);
     }
   }
@@ -149,10 +146,6 @@ Future<List<ParkingInfo>> filterCombo(Map<String, dynamic> filtersNameList,Strin
 
 
 Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async{
- // if(widget.address != null ){
-    // List<String> spliting = widget.address!.split(",");
-    // String newAddress = spliting[0]+spliting[1];
-
     String addressUrl= getUrl(filter,widget.address!);
     String urlFilter="";
     if( value != null){
@@ -171,12 +164,6 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
       throw Exception("error from server");
     }
   }
-//   else {
-//     throw Exception("address is null");
-//   }
-// }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -204,10 +191,10 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                     ),
               child: DropdownButton<String>(
                 value: walkingTime,
-                hint: Text('זמן הליכה',),
-               style: TextStyle(color: Colors.black),
+                hint: const Text('זמן הליכה',),
+               style: const TextStyle(color: Colors.black),
                 dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -229,7 +216,7 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                   Future<List<ParkingInfo>> combinationList= filterCombo(filterVariables,"filterByWalkingTime");
                   widget.updateParkingLots(combinationList,filterByWalkingTime);
                 },
-                items: [
+                items: const [
                   DropdownMenuItem(
                     value: 'reset',
                     child: Text('זמן הליכה'),
@@ -253,21 +240,21 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                 ],
               )
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Container(
                 height: 37,               
-               padding: EdgeInsets.only(right: 6.0),
+               padding: const EdgeInsets.only(right: 6.0),
               decoration:BoxDecoration(
                  color:  Colors.grey[200],
                   borderRadius: BorderRadius.circular(5) ,
-                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
+                  border: Border.all(width:2, color: const Color.fromARGB(255, 16, 19, 116)),
                     ),
               child: DropdownButton<String>(
                 value: filterByWalkingDistance,
-                hint: Text('עד מרחק'),
-                style: TextStyle(color: Colors.black),
+                hint: const Text('עד מרחק'),
+                style: const TextStyle(color: Colors.black),
                 dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -283,7 +270,7 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                   Future<List<ParkingInfo>> combinationList= filterCombo(filterVariables,"filterByWalkingDistance");
                   widget.updateParkingLots(combinationList,filterByWalkingTime);
                 },
-                items: [
+                items: const [
                   DropdownMenuItem(
                     value: 'reset',
                     child: Text('עד מרחק'),
@@ -307,21 +294,21 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                 ],
               )
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Container(
               height: 37,
-              padding: EdgeInsets.only(right: 6.0),
+              padding: const EdgeInsets.only(right: 6.0),
               decoration:BoxDecoration(
                  color:  Colors.grey[200],
                   borderRadius: BorderRadius.circular(5) ,
-                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
+                  border: Border.all(width:2, color: const Color.fromARGB(255, 16, 19, 116)),
                     ),
               child: DropdownButton<String>(
                 value: filterByCompany,
-                hint: Text('חברת חניונים',),
-                style: TextStyle(color: Colors.black),
+                hint: const Text('חברת חניונים',),
+                style: const TextStyle(color: Colors.black),
                 dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -337,7 +324,7 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                   Future<List<ParkingInfo>> combinationList= filterCombo(filterVariables,"filterByCompany");
                   widget.updateParkingLots(combinationList,filterByWalkingTime);
                 },
-                items: [
+                items: const [
                   DropdownMenuItem(
                     value: 'reset',
                     child: Text('חברת חניונים'),
@@ -353,23 +340,23 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                 ],
               )
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
                Container(
               
               height: 37,
-              padding: EdgeInsets.only(right: 6.0),
+              padding: const EdgeInsets.only(right: 6.0),
               decoration:BoxDecoration(
                   color:  Colors.grey[200],
                   borderRadius: BorderRadius.circular(5) ,
-                  border: Border.all(width:2, color: Color.fromARGB(255, 16, 19, 116)),
+                  border: Border.all(width:2, color: const Color.fromARGB(255, 16, 19, 116)),
                     ),
               
               child: DropdownButton<String>(
                 value: filterByStatus,
-                hint: Text('סטטוס',),
-                style: TextStyle(color: Colors.black),
+                hint: const Text('סטטוס',),
+                style: const TextStyle(color: Colors.black),
                 dropdownColor: Colors.grey[200], // Change the background color of the dropdown menu
-                icon: Icon(Icons.arrow_drop_down, color: Colors.black), // Change the color of the dropdown icon
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.black), // Change the color of the dropdown icon
                 underline: Container( // Remove the underline
                   height: 0,
                   color: Colors.transparent,
@@ -385,7 +372,7 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
                   Future<List<ParkingInfo>> combinationList= filterCombo(filterVariables,"filterByStatus");
                   widget.updateParkingLots(combinationList,filterByWalkingTime);
                 },
-                items: [
+                items: const [
                   DropdownMenuItem(
                     value: 'reset',
                     child: Text('סטטוס'),
@@ -415,7 +402,7 @@ Future<List<ParkingInfo>> getParkingByFilter(String filter, String? value) async
             style: ElevatedButton.styleFrom(
             textStyle: const TextStyle(fontSize: 15,),
             primary: Colors.grey[200],
-            side: BorderSide(color: Color.fromARGB(255, 16, 19, 116), width: 2), // Add a border color
+            side: const BorderSide(color: Color.fromARGB(255, 16, 19, 116), width: 2), // Add a border color
           ),
             onPressed:(){ resetFilters("reset all",filterVariables);
             Future<List<ParkingInfo>> newList= getParkingByFilter('company','reset');

@@ -164,7 +164,6 @@ class NavigationMapController extends GetxController with GetTickerProviderState
               southwest: LatLng(minLat, minLong),
               northeast: LatLng(maxLat, maxLong)),
           120));
-      // ignore: empty_catches
     } catch (e) {}
   }
 
@@ -203,7 +202,6 @@ class NavigationMapController extends GetxController with GetTickerProviderState
             visible: true,
             rotation: 0,
             icon: BitmapDescriptor.fromBytes(markerIcon));
-        //);
         markers[id] = newCar;
         update();
       });

@@ -21,7 +21,6 @@ class SingleParkCard extends StatelessWidget {
     if (parkingAvalability != "") {
       return GestureDetector(
   onTap: () {
-    // Navigate to the next page
     Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -36,7 +35,7 @@ class SingleParkCard extends StatelessWidget {
       margin: const EdgeInsets.all(7),
       height: 100,
       decoration: BoxDecoration(
-      color: Color(0xFF262AAA),
+      color: const Color(0xFF262AAA),
       borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(children: <Widget>[
@@ -60,7 +59,6 @@ class SingleParkCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  //parking.getParkingName.substring(0, 15),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   parking.getParkingName,
@@ -92,9 +90,7 @@ class SingleParkCard extends StatelessWidget {
                                 borderRadius: BorderRadius.all(Radius.circular(20)),
                                 color: Colors.white,
                             ),
-                            padding: EdgeInsets.only(right: 15),
-                            //alignment: Alignment.center,                                            
-                            //margin: EdgeInsets.only(bottom: 20,),
+                            padding: const EdgeInsets.only(right: 15),
                             height: 40,
                             width: 90,
                             child: Row( children:[                                             
@@ -122,7 +118,7 @@ class SingleParkCard extends StatelessWidget {
                                 fontWeight:
                                     FontWeight.bold),
                           ),
-                          if (isTimeFilterActive) // <-- render time if filter is active
+                          if (isTimeFilterActive)
                              const SizedBox(width: 10),
                           if (isTimeFilterActive)          
                             Text(
@@ -154,7 +150,6 @@ class SingleParkCard extends StatelessWidget {
         child: ListTile(
           leading: const CircleAvatar(
             radius: 25.0,
-            //backgroundImage: AssetImage('assets/images/parking-icon.png'),
           ),
           title: Text(parking.getParkingCode, ),
           subtitle: Column(
@@ -164,7 +159,6 @@ class SingleParkCard extends StatelessWidget {
                 parking.getAddress.substring(0, 15),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-             //   parking.getAddress,
                 style: const TextStyle(fontSize: 15.0),
               ),
               Text(

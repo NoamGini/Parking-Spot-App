@@ -1,11 +1,4 @@
-
 class DirectionModelDistance {
-/*
-{
-  "lat": 51.1797473,
-  "lng": 6.8273933
-} 
-*/
 
   double? lat;
   double? lng;
@@ -27,11 +20,6 @@ class DirectionModelDistance {
 }
 
 class DirectionModel {
-/*
-{instructions: At the roundabout, take the <b>1st</b> exit onto <b>Yosef Levi St</b>,
- distance: {lat: 32.0653435, lng: 34.7649243}}
-} 
-*/
 
   String? instructions;
   DirectionModelDistance? distance;

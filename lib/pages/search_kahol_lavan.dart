@@ -9,7 +9,6 @@ import '../constants.dart';
 import '../models/socketService.dart';
 import '../models/user.dart';
 import '../widget/LegendItem.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SearchKaholLavan extends StatefulWidget {
   User user;
@@ -25,7 +24,6 @@ class SearchKaholLavan extends StatefulWidget {
 
 class _SearchKaholLavanState extends State<SearchKaholLavan> {
   late GoogleMapController googleMapController;
-  //decode
   List<ParkingKaholLavan> parkingsKaholLavan=[];
   List<dynamic> decodedList=[];
   Set<Marker> markers={};
@@ -48,70 +46,42 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
 
 
   void handleParkingUpdate(dynamic data) {
-    print('trigger the handler');
-    print(data);
     String dataString =  utf8.decode(data);
     // Parse the received data
-    print(dataString);
     final jsonObject = json.decode(dataString);
-    print(jsonObject);
-    // int points = jsonObject["points"];
     String address = jsonObject["address"];
-    print(address);
     String status = jsonObject["status"];
     String latString= jsonObject["latitude"].toString();
     String lngString= jsonObject["longitude"].toString();
-    print(latString);
     double lat =double.parse(latString);
     double lng =double.parse(lngString);
     LatLng coordinates = LatLng(lat, lng);
-    print(coordinates);
     String releaseTime =jsonObject["release_time"];
-    print(releaseTime);
+    bool hidden =jsonObject["hidden"];
     
-    ParkingKaholLavan parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime);
+    ParkingKaholLavan parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime, hidden);
 
 
-      // Find the grabbed parking in the list and update its status
-      final releasedParking = parkingsKaholLavan.firstWhere((parking) => parking.getAddress == address);
+    // Find the grabbed parking in the list and update its status
+    final updatedParking = parkingsKaholLavan.firstWhere((parking) => parking.getAddress == address);
 
     if (mounted){
       //set state
       setState(() {
         //remove from list
-        parkingsKaholLavan.remove(releasedParking);
+        parkingsKaholLavan.remove(updatedParking);
 
+        
         // Add the new parking to the list
         parkingsKaholLavan.add(parkingKaholLavan);
+        
       });
     }
       print("creating maekers");
       // Refresh the map to reflect the updated state
-      createMarkers();
+      updateMarker(parkingKaholLavan);
 
 }
-
-
-  // void connectToServer() {
-  // // Define the server URL and namespace
-  // final serverUrl = 'http://10.0.2.2:5000/';
-  // final namespace = '/parkingUpdate';
-
-  // // Create the WebSocket connection
-  // IO.Socket socket = IO.io(serverUrl, <String, dynamic>{
-  //   'transports': ['websocket'],
-  //   'autoConnect': true,
-  //   //'query': {'namespace': namespace},
-  // });
-  
-
-  // // Set up event listeners for the desired events
-  // socket.on('grabbed_parking_update', handleParkingUpdate);
-  // socket.on('release_parking_update', handleParkingUpdate);
-
-  // // Connect to the server
-  // socket.connect();
-// }
 
 
   static const CameraPosition initialCameraPosition =  CameraPosition(
@@ -149,9 +119,11 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
       double lng =double.parse(lngString);
       LatLng coordinates = LatLng(lat, lng);
       String releaseTime =jsonObject["release_time"];
+      bool hidden = jsonObject["hidden"];
       
-      ParkingKaholLavan parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime);
+      ParkingKaholLavan parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime, hidden);
       parkingKaholLavanList.add(parkingKaholLavan);
+    
     }
     return parkingKaholLavanList;
   }
@@ -179,8 +151,6 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
     Position location = await Geolocator.getCurrentPosition(); 
-    // print(location.latitude);
-    // print(location.longitude);
     currentposition = location;
     return location;
   }
@@ -190,10 +160,9 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
   Position currentLoc = await getMyCurrentLocation();
   for (var parking in parkingList) {
     String drivingTime = await calculateDrivingTime(LatLng(currentLoc.latitude,currentLoc.longitude), parking.getCoordinates);
-    if (drivingTime != null) {
-      print(drivingTime);
+    if (drivingTime != "") {
       int minutes = int.parse(drivingTime.split(' ')[0]);
-      if (minutes != null && minutes < 7) {
+      if (!minutes.isNaN && minutes <= 7) {
         closestParkings.add(parking);
       }
     }
@@ -202,28 +171,71 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
   return closestParkings;
 }
 
-  void createMarkers() async {
-    print("creates markerssss");
-    markers.clear();
-   // List<ParkingKaholLavan> parkingList = await getClosestParking(parkingsKaholLavan);
-    for (var parking in parkingsKaholLavan) {
-      BitmapDescriptor markerIcon;
-      if (parking.getStatus == 'פנוי') {
-        markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen); // Use default marker for available parking
-      } else if (parking.getStatus == 'תפוס') {
-        markerIcon = BitmapDescriptor.defaultMarker; // Use red marker for occupied parking
-      } else {
-        markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange); // Use yellow marker for parking about to be vacated
-      }
-      Marker marker = Marker(
-        markerId: MarkerId(parking.getAddress),
-        position: parking.getCoordinates,
-        icon: markerIcon,
-        onTap: () => onMarkerTapped(parking)
-      );
-      markers.add(marker);
+void updateMarker(ParkingKaholLavan parking) {
+  // Check if the marker for the parking already exists
+  Marker? existingMarker;
+  try {
+    existingMarker = markers.firstWhere((marker) => marker.markerId.value == parking.getAddress);
+  } catch (e) {
+    // Marker not found, do nothing
+  }
+  
+  if (existingMarker != null) {
+    // Remove the existing marker
+    markers.remove(existingMarker);
+  }
+  // Create a new marker with the updated status
+  if(!parking.getHidden){
+    BitmapDescriptor markerIcon;
+    if (parking.getStatus == 'פנוי') {
+      markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+    } else if (parking.getStatus == 'תפוס') {
+      markerIcon = BitmapDescriptor.defaultMarker;
+    } else {
+      markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
     }
-    setState(() {});
+    Marker marker = Marker(
+      markerId: MarkerId(parking.getAddress),
+      position: parking.getCoordinates,
+      icon: markerIcon,
+      onTap: () => onMarkerTapped(parking),
+    );
+  
+    // Add the new marker to the set of markers
+    markers.add(marker);
+    
+    // Refresh the map to reflect the updated markers
+    if (mounted){
+      setState(() {});
+    }
+  }
+}
+
+  void createMarkers() async {
+    markers.clear();
+    List<ParkingKaholLavan> parkingList = await getClosestParking(parkingsKaholLavan);
+    for (var parking in parkingList) {
+      if (!parking.getHidden){
+        BitmapDescriptor markerIcon;
+        if (parking.getStatus == 'פנוי') {
+          markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen); // Use default marker for available parking
+        } else if (parking.getStatus == 'תפוס') {
+          markerIcon = BitmapDescriptor.defaultMarker; // Use red marker for occupied parking
+        } else {
+          markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange); // Use yellow marker for parking about to be vacated
+        }
+        Marker marker = Marker(
+          markerId: MarkerId(parking.getAddress),
+          position: parking.getCoordinates,
+          icon: markerIcon,
+          onTap: () => onMarkerTapped(parking)
+        );
+        markers.add(marker);
+      }
+    }
+    if (mounted){
+      setState(() {});
+    }
   }
 
   
@@ -241,7 +253,6 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
   }
 
   void onMarkerTapped(ParkingKaholLavan parking) async {
-   // showParkingInfoBox = true;
     selectedParking = parking;
     String drivingTimeToPark = await calculateDrivingTime(LatLng(currentposition.latitude, currentposition.longitude), parking.getCoordinates);
     setState(() {
@@ -258,14 +269,6 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
   
   }
 
-  void hideInfoBox() {
-    print("tap");
-    setState(() {
-      print("hi");
-      selectedParking = null;
-      drivingTime="";
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -286,10 +289,7 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
         ],
       ),
       body:
-      //  GestureDetector(
-      //   onTap: hideInfoBox, // Call hideInfoBox when the user taps anywhere on the screen
-      //   behavior: HitTestBehavior.translucent,
-      //   child:
+  
          Stack(
           children: [
             GoogleMap(
@@ -316,7 +316,7 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
               top: 16,
               right: 16,
               child: Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -329,8 +329,6 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
                     ),
                   ],
                 ),
-              // child: Align(
-              //   alignment: Alignment.topLeft,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
@@ -358,40 +356,17 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
                     ),
                   ],
                 ),
-            //  ),
               ),
             ),
-            // if (selectedParking != null)
-      // GestureDetector(
-      //   onTap: hideInfoBox,
-      //   child: Container(
-      //     color: Colors.transparent,
-      //     width: MediaQuery.of(context).size.width,
-      //     height: MediaQuery.of(context).size.height,
-      //   ),
-      // ),
+           
     if (selectedParking != null)
       ParkingInfoBox(
         parking: selectedParking!,
         drivingTime: drivingTime,
         user: widget.user,
         flagKaholLavan: widget.flagKaholLavan
-      ),
-
-        
-//           Visibility(
-//   visible: selectedParking != null,
-//   child: selectedParking != null
-//     ? ParkingInfoBox(
-//         parking: selectedParking!,
-//         drivingTime: drivingTime,
-//         //user: widget.user,
-//         // controller: googleMapController,
-//       )
-//     : SizedBox.shrink(),
-// ),
-          
-        ],
+      ),  
+      ],
       ),
   );
 }

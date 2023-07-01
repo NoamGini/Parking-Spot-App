@@ -45,8 +45,8 @@ class _NavigationPageState extends State<NavigationPage> {
                 markers: homeController.markers.values.toSet(),
                 polylines: Set<Polyline>.of(homeController.polyline),
                 onMapCreated: (GoogleMapController controller) async {
-                  if (!homeController.googleMapsController!.isCompleted) {
-                  homeController.googleMapsController!.complete(controller);
+                  if (!homeController.googleMapsController.isCompleted) {
+                  homeController.googleMapsController.complete(controller);
                   }
                   Position position =
                       await homeController.getMyCurrentLocation();
@@ -73,7 +73,6 @@ class _NavigationPageState extends State<NavigationPage> {
               ),
               Visibility(
                 visible: homeController.mapStatus.value == Constants.idle,
-              //  visible:true,
                 child: Positioned(
                     bottom: 30,
                     right: 20,

@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parking_spot_app/models/parking_kahol_lavan.dart';
 
 class User {
