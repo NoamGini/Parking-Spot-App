@@ -3,6 +3,8 @@ import 'package:parking_spot_app/models/parking_info.dart';
 import 'package:parking_spot_app/pages/navigationPage.dart';
 import 'package:parking_spot_app/models/user.dart';
 
+import '../constants.dart';
+
 class SingleParkCard extends StatelessWidget {
   static const routeName = "SingleParkCard";
   final ParkingInfo parking;
@@ -11,14 +13,12 @@ class SingleParkCard extends StatelessWidget {
   bool flagKaholLavan;
 
   SingleParkCard(this.parking,this.isTimeFilterActive, this.user, this.flagKaholLavan);
-  Map colorDict={"פנוי": Colors.green,"מעט":Colors.orange , "מלא":Colors.red,};
 
   
   @override
   Widget build(BuildContext context) {
     String? parkingAvalability = parking.getStatus;
-    print("status: $parkingAvalability of $parking.getParkingName");
-    if (parkingAvalability != "") {
+    if (parkingAvalability != Constants.emptyString) {
       return GestureDetector(
   onTap: () {
     Navigator.push(
@@ -96,7 +96,7 @@ class SingleParkCard extends StatelessWidget {
                             child: Row( children:[                                             
                           CircleAvatar(
                             radius: 5.0,
-                            backgroundColor:colorDict[parkingAvalability],
+                            backgroundColor:Constants.colorDict[parkingAvalability],
                           ),
                           const SizedBox(width: 15),
                           Text(
@@ -125,7 +125,7 @@ class SingleParkCard extends StatelessWidget {
                               parking.getwalkingTime,
                               style: const TextStyle(
                               fontSize: 15.0,
-                              fontWeight: FontWeight.bold),
+                              color: Colors.white),
                           ),
                           
                         ])

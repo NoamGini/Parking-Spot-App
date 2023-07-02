@@ -17,7 +17,7 @@ class SearchKaholLavan extends StatefulWidget {
 
     SearchKaholLavan({super.key,
     required this.user, required this.flagKaholLavan, required this.socketService});
-  static const routeName = "SearchKaholLavan";
+  static const routeName = Constants.searchKaholLavanRoute;
   @override
   _SearchKaholLavanState createState() => _SearchKaholLavanState();
 }
@@ -29,7 +29,7 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
   Set<Marker> markers={};
   ParkingKaholLavan? selectedParking;
   late Position currentposition;
-  String drivingTime="";
+  String drivingTime = Constants.emptyString;
 
 
   @override
@@ -39,7 +39,7 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
       parkingsKaholLavan = parkingLots;
       createMarkers();
     }).catchError((error) {
-      print('Error: $error');
+      print('${Constants.error}$error');
     });
     widget.socketService.addParkingUpdateHandler(handleParkingUpdate);
   }
@@ -49,18 +49,17 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
     String dataString =  utf8.decode(data);
     // Parse the received data
     final jsonObject = json.decode(dataString);
-    String address = jsonObject["address"];
-    String status = jsonObject["status"];
-    String latString= jsonObject["latitude"].toString();
-    String lngString= jsonObject["longitude"].toString();
+    String address = jsonObject[Constants.address];
+    String status = jsonObject[Constants.status];
+    String latString= jsonObject[Constants.latitude].toString();
+    String lngString= jsonObject[Constants.longitude].toString();
     double lat =double.parse(latString);
     double lng =double.parse(lngString);
     LatLng coordinates = LatLng(lat, lng);
-    String releaseTime =jsonObject["release_time"];
-    bool hidden =jsonObject["hidden"];
+    String releaseTime =jsonObject[Constants.releaseTime];
+    bool hidden =jsonObject[Constants.hidden];
     
     ParkingKaholLavan parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime, hidden);
-
 
     // Find the grabbed parking in the list and update its status
     final updatedParking = parkingsKaholLavan.firstWhere((parking) => parking.getAddress == address);
@@ -77,7 +76,6 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
         
       });
     }
-      print("creating maekers");
       // Refresh the map to reflect the updated state
       updateMarker(parkingKaholLavan);
 
@@ -85,23 +83,23 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
 
 
   static const CameraPosition initialCameraPosition =  CameraPosition(
-    target: LatLng(32.0636787,34.7636925),
-    zoom: 16,
+    target: LatLng(Constants.initialLat,Constants.initialLon),
+    zoom: Constants.initialZoom,
   );
 
 
   Future<List<ParkingKaholLavan>> getParkingsKaholLavan() async{
-    String url='http://10.0.2.2:5000/parking_kahol_lavan';
+    String url=Constants.urlParkingKaholLavan;
 
       final response = await http.get(Uri.parse(url));
-      if (response.statusCode ==200){
+      if (response.statusCode == Constants.okStatus){
       final decode = jsonDecode(response.body) as List;
       decodedList = decode;
       List<ParkingKaholLavan> finalList= extractJsonValues(decodedList);
       return finalList;
       }
       else{
-        throw Exception("error from server");
+        throw Exception(Constants.errorFromServer);
       }
  }
 
@@ -111,15 +109,15 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
     for (var i = 0; i < parkingsKaholLavan.length; i++) {
 
       var jsonObject = parkingsKaholLavan[i];
-      String address = jsonObject["address"];
-      String status = jsonObject["status"];
-      String latString= jsonObject["latitude"].toString();
-      String lngString= jsonObject["longitude"].toString();
+      String address = jsonObject[Constants.address];
+      String status = jsonObject[Constants.status];
+      String latString= jsonObject[Constants.latitude].toString();
+      String lngString= jsonObject[Constants.longitude].toString();
       double lat =double.parse(latString);
       double lng =double.parse(lngString);
       LatLng coordinates = LatLng(lat, lng);
-      String releaseTime =jsonObject["release_time"];
-      bool hidden = jsonObject["hidden"];
+      String releaseTime =jsonObject[Constants.releaseTime];
+      bool hidden = jsonObject[Constants.hidden];
       
       ParkingKaholLavan parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime, hidden);
       parkingKaholLavanList.add(parkingKaholLavan);
@@ -135,20 +133,19 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+      return Future.error(Constants.locationDisable);
     }
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+        return Future.error(Constants.permissionsDenied);
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+      return Future.error(Constants.cannotRequestPermissions);
     }
     Position location = await Geolocator.getCurrentPosition(); 
     currentposition = location;
@@ -160,9 +157,9 @@ class _SearchKaholLavanState extends State<SearchKaholLavan> {
   Position currentLoc = await getMyCurrentLocation();
   for (var parking in parkingList) {
     String drivingTime = await calculateDrivingTime(LatLng(currentLoc.latitude,currentLoc.longitude), parking.getCoordinates);
-    if (drivingTime != "") {
-      int minutes = int.parse(drivingTime.split(' ')[0]);
-      if (!minutes.isNaN && minutes <= 7) {
+    if (drivingTime != Constants.emptyString) {
+      int minutes = int.parse(drivingTime.split(Constants.whiteSpace)[0]);
+      if (!minutes.isNaN && minutes <= Constants.drivingTimeLimit) {
         closestParkings.add(parking);
       }
     }
@@ -187,9 +184,9 @@ void updateMarker(ParkingKaholLavan parking) {
   // Create a new marker with the updated status
   if(!parking.getHidden){
     BitmapDescriptor markerIcon;
-    if (parking.getStatus == 'פנוי') {
+    if (parking.getStatus == Constants.statusFree) {
       markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
-    } else if (parking.getStatus == 'תפוס') {
+    } else if (parking.getStatus == Constants.statusGrabbed) {
       markerIcon = BitmapDescriptor.defaultMarker;
     } else {
       markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
@@ -217,9 +214,9 @@ void updateMarker(ParkingKaholLavan parking) {
     for (var parking in parkingList) {
       if (!parking.getHidden){
         BitmapDescriptor markerIcon;
-        if (parking.getStatus == 'פנוי') {
+        if (parking.getStatus == Constants.statusFree) {
           markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen); // Use default marker for available parking
-        } else if (parking.getStatus == 'תפוס') {
+        } else if (parking.getStatus == Constants.statusGrabbed) {
           markerIcon = BitmapDescriptor.defaultMarker; // Use red marker for occupied parking
         } else {
           markerIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange); // Use yellow marker for parking about to be vacated
@@ -240,15 +237,15 @@ void updateMarker(ParkingKaholLavan parking) {
 
   
    Future<String> calculateDrivingTime(LatLng origin, LatLng destination) async {
-    String url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=${Constants.googleApiKey}&language=he';
+    String url = '${Constants.calculateDrivingTimeURL}origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=${Constants.googleApiKey}&language=he';
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
-      String durationText = decoded['routes'][0]['legs'][0]['duration']['text'];
+      String durationText = decoded[Constants.routes][0][Constants.legs][0][Constants.duration][Constants.text];
       return durationText;
     } else {
-      throw Exception('Error: ${response.statusCode}');
+      throw Exception( '${Constants.error}${response.statusCode}');
     }
   }
 
@@ -257,10 +254,10 @@ void updateMarker(ParkingKaholLavan parking) {
     String drivingTimeToPark = await calculateDrivingTime(LatLng(currentposition.latitude, currentposition.longitude), parking.getCoordinates);
     setState(() {
       selectedParking = parking;
-      if (drivingTimeToPark.contains("mins") || drivingTimeToPark.contains("min")){
+      if (drivingTimeToPark.contains(Constants.mins) || drivingTimeToPark.contains(Constants.min)){
         List timeInEnglish;
-        timeInEnglish = drivingTimeToPark.split(" ");
-        drivingTime = timeInEnglish[0]+" דקות";
+        timeInEnglish = drivingTimeToPark.split(Constants.whiteSpace);
+        drivingTime = timeInEnglish[0] + Constants.minsString;
       }
       else{
         drivingTime = drivingTimeToPark;
@@ -268,7 +265,6 @@ void updateMarker(ParkingKaholLavan parking) {
     });
   
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -311,7 +307,6 @@ void updateMarker(ParkingKaholLavan parking) {
                 );
               },
             ),
-            // Legend Widget
             Positioned(
               top: 16,
               right: 16,
@@ -325,7 +320,7 @@ void updateMarker(ParkingKaholLavan parking) {
                       color: Colors.grey.withOpacity(0.3),
                       spreadRadius: 2,
                       blurRadius: 5,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -333,7 +328,7 @@ void updateMarker(ParkingKaholLavan parking) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                       Text(
-                        'מקרא:', // Title of the legend
+                        Constants.legendString, // Title of the legend
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -341,18 +336,18 @@ void updateMarker(ParkingKaholLavan parking) {
                       ),
                     SizedBox(height: 8),
                     LegendItem(
-                      color: Color.fromARGB(255, 105, 237, 109), // Marker type color
-                      label: 'חניה פנויה', // Marker type label
+                      color: Constants.greenMarker, // Marker type color
+                      label: Constants.freeParkingString, // Marker type label
                     ),
                     SizedBox(height: 5),
                     LegendItem(
                       color: Colors.red, // Marker type color
-                      label: 'חניה תפוסה', // Marker type label
+                      label: Constants.grabbedParkingString, // Marker type label
                     ),
                     SizedBox(height: 5),
                     LegendItem(
-                      color: Color.fromARGB(255, 232, 143, 28), // Marker type color
-                      label: 'חניה מתפנה בקרוב', // Marker type label
+                      color: Constants.orangeMarker, // Marker type color
+                      label: Constants.releaseSoonParkingString, // Marker type label
                     ),
                   ],
                 ),

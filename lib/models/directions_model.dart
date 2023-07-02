@@ -1,3 +1,5 @@
+import '../constants.dart';
+
 class DirectionModelDistance {
 
   double? lat;
@@ -8,13 +10,13 @@ class DirectionModelDistance {
     this.lng,
   });
   DirectionModelDistance.fromJson(Map<String, dynamic> json) {
-    lat = json['lat']?.toDouble();
-    lng = json['lng']?.toDouble();
+    lat = json[Constants.lat]?.toDouble();
+    lng = json[Constants.lng]?.toDouble();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['lat'] = lat;
-    data['lng'] = lng;
+    data[Constants.lat] = lat;
+    data[Constants.lng] = lng;
     return data;
   }
 }
@@ -29,14 +31,14 @@ class DirectionModel {
     this.distance,
   });
   DirectionModel.fromJson(Map<String, dynamic> json) {
-    instructions = json['instructions']?.toString();
-    distance = (json['distance'] != null) ? DirectionModelDistance.fromJson(json['distance']) : null;
+    instructions = json[Constants.instructions]?.toString();
+    distance = (json[Constants.distance] != null) ? DirectionModelDistance.fromJson(json[Constants.distance]) : null;
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['instructions'] = instructions;
+    data[Constants.instructions] = instructions;
     if (distance != null) {
-      data['distance'] = distance!.toJson();
+      data[Constants.distance] = distance!.toJson();
     }
     return data;
   }

@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../constants.dart';
 
 class ParkingInfo {
   ParkingInfo(
@@ -39,8 +40,8 @@ class ParkingInfo {
   }
 
   String get getwalkingTime{
-    List<String> spliting = _walkingTime.split(" ");
-    if (spliting[1]=="mins"){
+    List<String> spliting = _walkingTime.split(Constants.whiteSpace);
+    if (spliting[1]==Constants.mins){
       _walkingTime = "${spliting[0]} דק'";
     }
     return _walkingTime;

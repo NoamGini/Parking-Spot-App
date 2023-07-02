@@ -9,22 +9,16 @@ import 'package:http/http.dart' as http;
 import 'package:parking_spot_app/models/parking_kahol_lavan.dart';
 import 'dart:convert';
 import 'package:parking_spot_app/pages/homepage.dart';
-
-// ignore: implementation_imports
-
 import '../models/directions_model.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'dart:math';
 import 'package:parking_spot_app/models/user.dart';
 
-import '../pages/arrivalpage.dart';
 
 class DirectionsStatusBar extends StatelessWidget {
   User user;
   final String address;
   bool flagKaholLavan;
-  // DirectionsStatusBar({super.key,
-  //   required this.address});
    DirectionsStatusBar({super.key,
     required this.user, required this.address, required this.flagKaholLavan});
         
@@ -39,35 +33,24 @@ class DirectionsStatusBar extends StatelessWidget {
   User extractJsonValues(jsonObject, theUser) {
       ParkingKaholLavan? parkingKaholLavan;
       int points = jsonObject["points"];
-      print(points);
       
       if (jsonObject["parking"] != null){
         String address = jsonObject["parking"]["address"];
-        print(address);
         String status = jsonObject["parking"]["status"];
         String latString= jsonObject["parking"]["latitude"].toString();
         String lngString= jsonObject["parking"]["longitude"].toString();
-        print(latString);
         double lat =double.parse(latString);
         double lng =double.parse(lngString);
         LatLng coordinates = LatLng(lat, lng);
-        print(coordinates);
         String releaseTime =jsonObject["parking"]["release_time"];
-        print(releaseTime);
-        bool hidden = jsonObject["parking"]["hidden"];
-        
+        bool hidden = jsonObject["parking"]["hidden"]; 
         parkingKaholLavan = ParkingKaholLavan(address, status, coordinates, releaseTime,hidden);
-        print(parkingKaholLavan);
       }
       else{
       parkingKaholLavan = null;
       }
 
       theUser.addPoints(points);
-    //  theUser.setParking(parkingKaholLavan);
-      //User user = User(name,emailAddress,password,parkingKaholLavan,points);
-      print("i pass it");
-      print(theUser);
        return theUser;
     }
 
@@ -75,8 +58,6 @@ class DirectionsStatusBar extends StatelessWidget {
   Future<User> grabbedParking(User user, String address) async{
 
     const url = "http://10.0.2.2:5000/parking_kahol_lavan/grabbing_parking";
-    print("grabbing");
-    print(user);
     final uri = Uri.parse(url);
     final response = await http.post(
         uri, body: json.encode(
@@ -84,15 +65,8 @@ class DirectionsStatusBar extends StatelessWidget {
           'address': address,
           }));
     
-
     final message = json.decode(response.body);
-   // final message = jsonResponse['response'];
-    print("message");
-    print(message);
-    print(user);
     User updatedUser = extractJsonValues(message,user);
-      //return that person 
-    //flagKaholLavan = false;        
     return updatedUser;
     }
 

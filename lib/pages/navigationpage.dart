@@ -11,7 +11,7 @@ import 'package:parking_spot_app/widget/destination_box.dart';
 import 'package:parking_spot_app/models/user.dart';
 
 class NavigationPage extends StatefulWidget {
-  static const routeName = "NavigationPage";
+  static const routeName = Constants.navigationPageRoute;
   final String destinationAddress;
   final LatLng destinationCoordinates;
   User user;

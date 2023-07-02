@@ -15,9 +15,9 @@ class NavigationMapController extends GetxController with GetTickerProviderState
   NavigationMapController(this.destinationAddress,
     this.destinationCoordinates);
   late Completer<GoogleMapController> googleMapsController = Completer();
-  var destination = "".obs;
-  var distanceLeft = "".obs;
-  var timeLeft = "".obs;
+  var destination = Constants.emptyString.obs;
+  var distanceLeft = Constants.emptyString.obs;
+  var timeLeft = Constants.emptyString.obs;
   var mapStatus = Constants.route.obs;
   var arrived = false.obs;
   var gettingRoute = false.obs;
@@ -28,8 +28,8 @@ class NavigationMapController extends GetxController with GetTickerProviderState
 
 
   CameraPosition initialCameraPosition = const CameraPosition(
-    target: LatLng(32.0636787,34.7636925),
-    zoom: 16,
+    target: LatLng(Constants.initialLat,Constants.initialLon),
+    zoom: Constants.initialZoom,
   );
 
   @override
@@ -41,10 +41,10 @@ class NavigationMapController extends GetxController with GetTickerProviderState
   }
 
   Future moveMapCamera(LatLng target,
-      {double zoom = 16, double bearing = 0}) async {
+      {double zoom = Constants.initialZoom, double bearing = 0}) async {
 
     CameraPosition newCameraPosition =
-        CameraPosition(target: target, zoom: zoom, bearing: bearing, tilt: 45.0);
+        CameraPosition(target: target, zoom: zoom, bearing: bearing, tilt: Constants.tilt);
 
     final GoogleMapController controller = await googleMapsController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(newCameraPosition));
@@ -56,29 +56,29 @@ class NavigationMapController extends GetxController with GetTickerProviderState
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+      return Future.error(Constants.locationDisable);
     }
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+        return Future.error(Constants.permissionsDenied);
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+          Constants.cannotRequestPermissions);
     }
     return await Geolocator.getCurrentPosition();
   }
 
   
   clearDestination() async {
-    destinationAddress="";
+    destinationAddress=Constants.emptyString;
     destinationCoordinates= const LatLng(0,0);
-    destination.value = "";
+    destination.value = Constants.emptyString;
     mapStatus.value = Constants.idle;
     polyline.clear();
     polylineCoordinates.clear();
@@ -125,7 +125,7 @@ class NavigationMapController extends GetxController with GetTickerProviderState
         }
       });
 
-      PolylineId id = const PolylineId('route');
+      PolylineId id = const PolylineId( Constants.route);
 
       Polyline myPolyline = Polyline(
           width: 4,
@@ -137,8 +137,6 @@ class NavigationMapController extends GetxController with GetTickerProviderState
       if (mapStatus.value != Constants.onDestination) {
         await positionCameraToRoute(polyline);
       }
-    } catch (e) {
-      
     }finally{
        gettingRoute.value = false;
     }
@@ -169,7 +167,7 @@ class NavigationMapController extends GetxController with GetTickerProviderState
 
   addDestinationMarker(LatLng destination) {
     LatLng position = LatLng(destination.latitude, destination.longitude);
-    MarkerId id = const MarkerId("destination");
+    MarkerId id = const MarkerId(Constants.destination);
     Marker destinationMarker =
         Marker(markerId: id, position: position, rotation: 0, visible: true);
     markers[id] = destinationMarker;
@@ -178,7 +176,7 @@ class NavigationMapController extends GetxController with GetTickerProviderState
   addDriverMarker(LatLng oldPos, LatLng newDriverPos) async {
     final Uint8List markerIcon =
        await getBytesFromAsset(Constants.driverCarImage, 100);
-     MarkerId id = const MarkerId("driverMarker");
+     MarkerId id = const MarkerId(Constants.driverMarker);
 
     AnimationController animationController = AnimationController(
       duration: const Duration(seconds: 3),
@@ -230,18 +228,18 @@ class NavigationMapController extends GetxController with GetTickerProviderState
     var data = response.data;
     double distance = 0.0;
     double duration = 0.0;
-    List<dynamic> elements = data['rows'][0]['elements'];
+    List<dynamic> elements = data[Constants.rows][0][Constants.elements];
     for (var i = 0; i < elements.length; i++) {
-      distance = distance + elements[i]['distance']['value'];
-      duration = duration + elements[i]['duration']['value'];
+      distance = distance + elements[i][Constants.distance][Constants.value];
+      duration = duration + elements[i][Constants.duration][Constants.value];
     }
-    if (distance < 5) {
+    if (distance < Constants.maxDistance) {
       arrived.value = true;
     } else {
       arrived.value = false;
     }
     distanceLeft.value =
-        "${(distance / 1000).toStringAsFixed(2)} קמ' "; // in kilometers
-    timeLeft.value = "${(duration / 60).toStringAsFixed(0)} דקות"; // in minutes
+        "${(distance / Constants.oneKm).toStringAsFixed(Constants.two)}${Constants.kilometersString}"; // in kilometers
+    timeLeft.value = "${(duration / Constants.hour).toStringAsFixed(0)}${Constants.minsString}"; // in minutes
   }
 }

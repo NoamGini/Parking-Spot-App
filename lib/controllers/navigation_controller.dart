@@ -20,7 +20,7 @@ class NavigationController extends GetxController {
     navigationMapController.mapStatus.value = Constants.onDestination;
     const LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 1,
+      distanceFilter: Constants.distanceFilter,
     );
     positionStream = Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position? position) async{
@@ -29,7 +29,7 @@ class NavigationController extends GetxController {
               navigationMapController.addDriverMarker(LatLng(oldLatitude.value, oldLongitude.value), newPosition);
               oldLatitude.value = position.latitude;
               oldLongitude.value = position.longitude;      
-              navigationMapController.moveMapCamera(newPosition, zoom: 18, bearing: position.heading);
+              navigationMapController.moveMapCamera(newPosition, zoom: Constants.navigationZoom, bearing: position.heading);
               navigationMapController.getTotalDistanceAndTime(navigationMapController.destinationCoordinates);
               bool isOnRoute = getRouteDeviation(newPosition);
               if(!isOnRoute || directions.isEmpty){
@@ -73,12 +73,12 @@ class NavigationController extends GetxController {
     String destinations = "${to.latitude},${to.longitude}";
     Dio dio = Dio();
     var response = await dio.get(
-        "https://maps.googleapis.com/maps/api/directions/json?units=imperial&origin=$origin&destination=$destinations&key=${Constants.googleApiKey}&language=he");
+        "${Constants.calculateDrivingTimeURL}units=imperial&origin=$origin&destination=$destinations&key=${Constants.googleApiKey}&language=he");
     var data = response.data;
-    final dir = data['routes'][0]['legs'][0]['steps']
+    final dir = data[Constants.routes][0][Constants.legs][0][Constants.steps]
         .map((h) => {
-              "instructions": h['html_instructions'],
-              "distance": h['start_location']
+              Constants.instructions: h[Constants.htmlInstructions],
+              Constants.distance: h[Constants.startLocation]
             })
         .toList();
     directions.value = [...dir];
@@ -86,12 +86,12 @@ class NavigationController extends GetxController {
   }
 
     getNextDirection(LatLng from) {
-    if (directions.length > 1) {
+    if (directions.length > Constants.distanceFilter) {
       var closestDirectionIndex = directions.where((direction) =>
           SphericalUtils.computeDistanceBetween(
               Point(from.latitude, from.longitude),
               Point(
-                  direction['distance']['lat'], direction['distance']['lng'])) <
+                  direction[Constants.distance][Constants.lat], direction[Constants.distance][Constants.lng])) <
           7);
       if (closestDirectionIndex.isNotEmpty) {
         directions.removeAt(0);

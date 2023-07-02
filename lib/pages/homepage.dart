@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
   static const routeName = "HomePage";
   User user;
   
-
   HomePage({
     super.key,
     required this.user,
@@ -32,16 +31,9 @@ class HomePage extends StatefulWidget {
 class _StartPageState extends State<HomePage> {
   late Uri url;
   late SocketService socketService;
-  final List<String> dropdownItems = [
-    'בחר מועד',
-    'עכשיו',
-    'בעוד 5 דק\'',
-    'בעוד 10 דק\'',
-    'בעוד 15 דק\'',
-    'בעוד 20 דק\'',
-  ];
+  final List<String> dropdownItems = Constants.dropdownItems;
 
-  String dropdownValue = 'בחר מועד';
+  String dropdownValue = Constants.pickTime;
   bool finalResponse = false;
 
   bool isOptionSelected = false;
@@ -57,7 +49,6 @@ class _StartPageState extends State<HomePage> {
     socketService = SocketService();
     socketService.connectToServer();
   }
-
 
   User extractJsonValues(jsonObject) {
     ParkingKaholLavan? parkingKaholLavan;
