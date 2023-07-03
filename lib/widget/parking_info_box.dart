@@ -81,7 +81,7 @@ class ParkingInfoBoxState extends State<ParkingInfoBox> with SingleTickerProvide
             Text("זמן נסיעה משוער: ${widget.drivingTime}", style: const TextStyle(fontSize: 18),),
             const SizedBox(height: 5),
             if(widget.parking.getStatus == 'מתפנה בקרוב')
-            const Text("זמן פינוי משוער:", style: TextStyle(fontSize: 18),),
+            Text("זמן פינוי משוער: ${widget.parking.getReleaseTime}", style: TextStyle(fontSize: 18),),
             const SizedBox(height: 5),
             Align(
               alignment: Alignment.centerLeft,
