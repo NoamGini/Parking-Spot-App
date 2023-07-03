@@ -12,6 +12,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../sidebar/sidebar.dart';
 import '../widget/background.dart';
+import 'package:parking_spot_app/constants.dart';
+
 
 Future<Position> getCurrentLocation() async {
   return await Geolocator.getCurrentPosition();
@@ -41,7 +43,6 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController _controller = TextEditingController();
   var uuid = const Uuid();
   String _sessionToken = '122344';
-  List<String> _history = [];
   final FocusNode _focusNode = FocusNode();
   bool _searchByLocation = false;
   bool _searchByParkingLotName = false;
@@ -50,7 +51,7 @@ class _SearchPageState extends State<SearchPage> {
   List<dynamic> parkingLots = [];
 
   // Add a variable to hold the list of parking lot names
-  List<String> _parkingLotNames = [];
+  List<List<String>> _parkingLotNames = [];
   String url = 'http://10.0.2.2:5000/closest_parking/';
 
   late GoogleMapController? _googleController;
@@ -59,12 +60,12 @@ class _SearchPageState extends State<SearchPage> {
   Set<Marker> markers = {};
   late Position _currentPosition;
 
-  Future<List<String>> getParkingLots(url) async {
+  Future<List<List<String>>> getParkingLots(url) async {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final decode = jsonDecode(response.body) as List;
       parkingLots = decode;
-      List<String> finalList = extractFromJsonNames(parkingLots);
+      List<List<String>> finalList = extractFromJsonNames(parkingLots);
       // Update the state with the list of parking lot names
       setState(() {
         _parkingLotNames = finalList;
@@ -75,12 +76,20 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  List<String> extractFromJsonNames(List<dynamic> parkingLots) {
-    List<String> parkingNamesList = [];
+  List<List<String>> extractFromJsonNames(List<dynamic> parkingLots) {
+    List<List<String>> parkingNamesList = [];
     for (var i = 0; i < parkingLots.length; i++) {
+      String parkingAddress="";
+
       var jsonObject = parkingLots[i];
-      String parkingName = jsonObject["Name"];
-      parkingNamesList.add(parkingName);
+      String parkingName = jsonObject['Name'];
+      if (jsonObject.containsKey('AhuzotCode')){
+        parkingAddress = jsonObject["Address"];
+      }
+      else{
+        parkingAddress = jsonObject["address"];
+      }
+      parkingNamesList.add([parkingName,parkingAddress]);
     }
     return parkingNamesList;
   }
@@ -117,19 +126,30 @@ class _SearchPageState extends State<SearchPage> {
       return;
     }
     final suggestions = _parkingLotNames
-        .where((name) => name.toLowerCase().contains(input.toLowerCase()))
+        .where((name) => name[0].toLowerCase().contains(input.toLowerCase()))
         .toList();
     setState(() {
-      _placesList = suggestions.map((name) => {'description': name}).toList();
+      _placesList = suggestions.map((name) => {'description': name[0]}).toList();
     });
   }
 
+  String getAddressFromName(String parkingName){
+    print("inGET");
+    List<String> parkingInfo = _parkingLotNames.firstWhere(
+          (name) => name[0].contains(parkingName),
+          orElse: () => [],
+    );
+    print(parkingInfo);
+    return parkingInfo[1];
+
+  }
+
   void getSuggestion(String input) async {
-    String kPLACES_API_KEY = "AIzaSyDKupYcq3t0hyHTn-YQRriH57ch-Ekw0cs";
+    //String kPLACES_API_KEY = Constants.googleApiKey;
     String baseURL =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String request =
-        '$baseURL?input=$input&key=$kPLACES_API_KEY&sessiontoken=$_sessionToken';
+        '$baseURL?input=$input&key=${Constants.googleApiKey}&sessiontoken=$_sessionToken';
     var response = await http.get(Uri.parse(request));
     var data = response.body.toString();
     if (response.statusCode == 200) {
@@ -141,25 +161,19 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  void addToHistory(String address) {
-    _history.insert(0, address);
-  }
 
   void onSearchSubmitted(String input, User user) async {
-    if (input.isNotEmpty) {
-      addToHistory(input);
-    }
     if (_searchByParkingLotName) {
       try {
         final parkingLots = await getParkingLots(url);
         final parkingLotName = parkingLots.firstWhere(
-          (name) => name.contains(input),
-          orElse: () => '',
+          (name) => name[0].contains(input),
+          orElse: () => [],
         );
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ResultsPage(address: parkingLotName, user: user, flagKaholLavan: widget.flagKaholLavan, socketService: widget.socketService,),
+            builder: (context) => ResultsPage(address: parkingLotName[1], user: user, flagKaholLavan: widget.flagKaholLavan, socketService: widget.socketService,),
             settings: RouteSettings(
               arguments: parkingLotName,
             ),
@@ -458,15 +472,14 @@ class _SearchPageState extends State<SearchPage> {
                                       : const Icon(null),
                                   onTap: () {
                                     if (_controller.text.isNotEmpty) {
-                                      addToHistory(suggestion);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ResultsPage(
                                               flagKaholLavan: widget.flagKaholLavan,
                                               socketService: widget.socketService,
-                                              address: _placesList[index]
-                                              ['description'], user: user),   
+                                              address: getAddressFromName(_placesList[index]
+                                              ['description']), user: user),   
                                           settings: RouteSettings(
                                             arguments: suggestion,
                                           ),

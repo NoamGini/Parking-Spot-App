@@ -68,9 +68,15 @@ class SingleParkCard extends StatelessWidget {
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  parking.getAddress,
-                  style: const TextStyle(color: Colors.white,
-                      fontWeight: FontWeight.bold),
+                  parking.getAddress.length > 24
+                      ? '${parking.getAddress.substring(0, 24)}...'
+                      : parking.getAddress,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   parking.getParkingLotCompany,

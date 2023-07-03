@@ -47,9 +47,15 @@ class _ResultsPageState extends State<ResultsPage> {
   }
 
   Future<List<ParkingInfo>> getParkingLots(url,address) async{
-    List<String> spliting = address.split(",");
-    String newAddress = spliting[0]+spliting[1];
-    String addressUrl= url+newAddress;
+    String addressUrl="";
+    if (address.contains(",")){
+      List<String> spliting = address.split(",");
+      String newAddress = spliting[0]+spliting[1];
+      addressUrl= url+newAddress;
+    }
+    else{
+      addressUrl= url+address;
+    }
 
     final response = await http.get(Uri.parse(addressUrl));
     if (response.statusCode ==200){
@@ -100,6 +106,12 @@ class _ResultsPageState extends State<ResultsPage> {
       parkingInfoList.add(parkingInfo);
     }
     return parkingInfoList;
+  }
+  void reloadFunction() {
+    // Implement your reload logic here
+    setState(() {
+      parkingInfoList = getParkingLots(url,widget.address);
+    });
   }
 
   @override
@@ -183,7 +195,16 @@ class _ResultsPageState extends State<ResultsPage> {
                       },
                     );
                   } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [ 
+                        IconButton(
+                          onPressed: reloadFunction, // Call your reload function here
+                          icon: const Icon(Icons.refresh), // Replace with your reload icon
+                          iconSize: 36,
+                        ),
+                      ],
+                    );
                   }
                   return const CircularProgressIndicator();
                 },
